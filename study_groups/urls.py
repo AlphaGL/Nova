@@ -11,5 +11,6 @@ urlpatterns = [
 
     path('profile/<str:pk>/', views.user_profile, name='user_profile'),
 
-    path('topics/', views.topics_page, name='topics')
+    path('topics/', views.topics_page, name='topics'),
+    path('activity/', views.activity_page, name="activity"),
 ]

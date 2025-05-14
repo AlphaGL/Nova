@@ -10,17 +10,60 @@
     <title>StudyBuddy - Find study partners around the world!</title>
   </head>
 
+  <style>
+    #toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+    }
+
+    .toast {
+        background-color: #f44336; /* red for error */
+        color: white;
+        padding: 16px;
+        margin-top: 10px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        opacity: 0;
+        animation-fill-mode: forwards;
+    }
+
+    @keyframes fadein {
+        from { top: 0; opacity: 0; }
+        to { top: 20px; opacity: 1; }
+    }
+
+    @keyframes fadeout {
+        from { opacity: 1; }
+        to { opacity: 0; }
+    }
+
+  </style>
+
   <body>
 
     {% include 'study_groups/navbar.html' %}
 
     {% if messages %}
-    <ul class="messages">
+    <div id="toast-container">
         {% for message in messages %}
-        <li>{{ message }}</li>
+        <div class="toast">{{ message }}</div>
         {% endfor %}
-    </ul>
+    </div>
     {% endif %}
+
+        <script>
+      // Remove the toast after animation ends
+      document.addEventListener('DOMContentLoaded', () => {
+          setTimeout(() => {
+              const container = document.getElementById('toast-container');
+              if (container) container.remove();
+          }, 3000); // match fadeout delay
+      });
+  </script>
+
 
     {% block content %}
     

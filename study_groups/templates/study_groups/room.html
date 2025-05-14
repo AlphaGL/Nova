@@ -38,12 +38,17 @@
             <p>Hosted By</p>
             <a href="{% url 'user_profile' room.host.id %}" class="room__author">
               <div class="avatar avatar--small">
-                <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+                <img src="{{room.host.avatar.url}}" />
               </div>
-              <span>@{{ room.host.username }}</span>
+              <span>@{{ room.host.name }}</span>
             </a>
           </div>
+          <div class="container-grid" style="display: flex; justify-content: space-between;">
           <span class="room__topics">{{ room.topic }}</span>
+          {% if not user.is_authenticated %}
+          <a style="background-color: #167a87;" href="{% url 'login' %}" class="room__topics">Login to join conversation</a>
+          {% endif %}
+          </div>
         </div>
 
         <div class="room__conversation">
@@ -55,12 +60,12 @@
                   <div class="thread__authorInfo">
                     <a href="{% url 'user_profile' message.user.id %}">
                       <div class="avatar avatar--small">
-                        <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+                        <img src="{{message.user.avatar.url}}" />
                       </div>
                     </a>
                     <div class="message-container slide-mention" data-username="{{ message.user.username }}">
                       <a href="{% url 'user_profile' message.user.id %}">
-                        <small class="mention-username">@{{ message.user.username }}</small>
+                        <small class="mention-username">@{{ message.user.name }}</small>
                       </a>
                       <p>{{ message.body }}</p>
                       <div class="mention-tooltip">Double tap to mention</div>
@@ -102,7 +107,8 @@
         </div>
       </div>
 
-        <div class="room__message">
+      {% if user.is_authenticated %}
+              <div class="room__message">
           <!-- Hidden Chat Form (now always visible) -->
           <form action="" method="POST" enctype="multipart/form-data" id="chatForm" class="chat-form">
             {% csrf_token %}
@@ -135,6 +141,7 @@
             </div>
           </form>
         </div>
+      {% endif %}
 
         <!-- Style -->
         <style>
@@ -318,14 +325,14 @@
 
     <!-- Participants -->
     <div class="participants">
-      <h3 class="participants__top">Participants <span>({{participant.count}} Joined)</span></h3>
+      <h3 class="participants__top">Participants <span>({{participants.count}} Joined)</span></h3>
       <div class="participants__list scroll">
         {% for user in participants %}
         <a href="{% url 'user_profile' user.id %}" class="participant">
           <div class="avatar avatar--medium">
-            <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+            <img src="{{user.avatar.url}}" />
           </div>
-          <p>{{ user.username }} <span>@{{ user.username }}</span></p>
+          <p>{{ user.name }} <span>@{{ user.username }}</span></p>
         </a>
         {% endfor %}
       </div>

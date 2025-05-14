@@ -1,0 +1,307 @@
+{% extends 'users/base.html' %}
+{% load static %}
+{% block content %}
+
+<!-- Loading Screen -->
+<div id="loader" style="position:fixed;top:0;left:0;width:100%;height:100%;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <span style="color:white;font-size:1.5rem;">Loading...</span>
+</div>
+
+<div class="x-layout">
+  <!-- Left Sidebar -->
+  <aside class="x-sidebar-left">
+    <nav>
+      <ul>
+        <li><a href="#"><strong>🏠 Home</strong></a></li>
+        <li><a href="#">🔔 Notifications</a></li>
+        <li><a href="#">💬 Messages</a></li>
+        <li><a href="#">👤 Profile</a></li>
+        <li><a href="#">⚙️ Settings</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main Feed -->
+  <main class="x-feed">
+
+    <h2 class="x-title">Activity</h2>
+
+    {% for message in room_messages %}
+    <div class="x-tweet" id="message-{{ message.id }}">
+      <img src="{{message.user.avatar.url}}" class="x-avatar">
+
+      <div class="x-body">
+        <div class="x-header">
+          <a href="{% url 'user_profile' message.user.id %}" class="x-username">@{{ message.user.name }}</a>
+          <span class="x-time">· {{ message.created|timesince }} ago</span>
+          {% if user == message.user %}
+          <a href="{% url 'delete_message' message.id %}" class="x-delete">&#x2715;</a>
+          {% endif %}
+        </div>
+
+        <div class="x-content">
+          <p class="x-reply">replied on <a href="{% url 'room' message.room.id %}" class="x-link">{{ message.room }}</a></p>
+          <p class="x-text">{{ message.body }}</p>
+        </div>
+
+        <div class="x-actions">
+          <button onclick="shareActivity('{{ request.build_absolute_uri }}#message-{{ message.id }}')" title="Copy link">🔗</button>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </main>
+
+  <!-- Right Sidebar -->
+  <aside class="x-sidebar-right">
+    <section class="x-widget">
+      {% if rooms %}
+      <h4>Rooms to follow</h4>
+      {% for room in rooms %}
+      <ul>
+        <li>@<a href="{% url 'study_group_home' %}?q={{topic.name}}">{{room.name}}</a> </li>
+      </ul>
+      {% endfor %}
+      {% else %}
+      <h4><a href="{% url 'create_room' %}">Create Room</a></h4>
+      {% endif %}
+    </section>
+  </aside>
+</div>
+
+<script>
+  window.addEventListener('load', () => {
+    document.getElementById('loader').style.display = 'none';
+  });
+
+  function checkPostInput() {
+    const input = document.getElementById('postInput').value.trim();
+    document.getElementById('postBtn').disabled = input === "";
+  }
+
+  function submitPost() {
+    const content = document.getElementById('postInput').value;
+    alert(`Pretend this was posted: ${content}`);
+    document.getElementById('postInput').value = "";
+    checkPostInput();
+  }
+
+  function shareActivity(url) {
+    navigator.clipboard.writeText(url).then(() => {
+      alert('Link copied to clipboard!');
+    }).catch(() => {
+      alert('Failed to copy link.');
+    });
+  }
+</script>
+
+<style>
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #000;
+  color: #e7e9ea;
+}
+
+.x-layout {
+  display: flex;
+  max-width: 1200px;
+  margin: auto;
+}
+
+/* Left Sidebar */
+.x-sidebar-left {
+  width: 220px;
+  padding: 1rem;
+  border-right: 1px solid #2f3336;
+  animation: slideLeft 0.6s ease forwards;
+}
+.x-sidebar-left ul {
+  list-style: none;
+  padding: 0;
+}
+.x-sidebar-left li {
+  margin: 1rem 0;
+}
+.x-sidebar-left a {
+  text-decoration: none;
+  color: #e7e9ea;
+  transition: color 0.3s ease;
+}
+.x-sidebar-left a:hover {
+  color: #1d9bf0;
+}
+
+/* Right Sidebar */
+.x-sidebar-right {
+  width: 280px;
+  padding: 1rem;
+  border-left: 1px solid #2f3336;
+  animation: slideRight 0.6s ease forwards;
+}
+.x-widget {
+  margin-bottom: 2rem;
+}
+.x-widget h4 {
+  margin-bottom: 0.5rem;
+}
+.x-widget ul {
+  list-style: none;
+  padding: 0;
+}
+.x-widget li {
+  padding: 0.4rem 0;
+  color: #1d9bf0;
+}
+
+/* Main Feed */
+.x-feed {
+  flex: 1;
+  padding: 1rem;
+  animation: fadeIn 0.6s ease forwards;
+}
+.x-title {
+  font-size: 1.5rem;
+  margin: 1rem 0;
+}
+
+/* Post Box */
+.x-post-box {
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1px solid #2f3336;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+}
+.x-post-box textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #e7e9ea;
+  resize: none;
+  height: 60px;
+  padding: 0.5rem;
+  margin-left: 0.5rem;
+  border-bottom: 1px solid transparent;
+}
+.x-post-box textarea:focus {
+  outline: none;
+  border-bottom: 1px solid #1d9bf0;
+}
+.x-post-box button {
+  background-color: #1d9bf0;
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 999px;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background-color 0.3s ease;
+}
+.x-post-box button:disabled {
+  background-color: #2f3336;
+  cursor: default;
+}
+
+/* Tweet */
+.x-tweet {
+  display: flex;
+  padding: 1rem 0;
+  border-bottom: 1px solid #2f3336;
+  animation: fadeIn 0.4s ease-in-out;
+}
+.x-tweet:hover {
+  background-color: #16181c;
+  transition: background-color 0.3s ease;
+}
+.x-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+}
+.x-body {
+  margin-left: 1rem;
+  flex: 1;
+}
+.x-header {
+  display: flex;
+  align-items: center;
+  font-size: 0.95rem;
+}
+.x-username {
+  font-weight: bold;
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.x-time {
+  color: #71767b;
+  margin-left: 0.5rem;
+}
+.x-delete {
+  margin-left: auto;
+  color: #f4212e;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.x-reply {
+  font-size: 0.85rem;
+  color: #71767b;
+}
+.x-link {
+  color: #1d9bf0;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+.x-text {
+  margin-top: 0.25rem;
+  white-space: pre-wrap;
+  font-size: 0.95rem;
+}
+.x-actions {
+  display: flex;
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+.x-actions button {
+  background: none;
+  border: none;
+  color: #1d9bf0;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: text-decoration 0.3s ease;
+}
+.x-actions button:hover {
+  text-decoration: underline;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideLeft {
+  from { transform: translateX(-100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideRight {
+  from { transform: translateX(100px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+@media (max-width: 768px) {
+  .x-layout {
+    flex-direction: column;
+  }
+  .x-sidebar-left,
+  .x-sidebar-right {
+    display: none;
+  }
+  .x-feed {
+    width: 100%;
+  }
+}
+</style>
+
+{% endblock %}

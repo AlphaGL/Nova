@@ -2,12 +2,20 @@
 {% load static %}
 {% block content %}
     <main class="auth layout">
-
       {% if page == 'login' %}
       <div class="container">
         <div class="layout__box">
           <div class="layout__boxHeader">
             <div class="layout__boxTitle">
+              <a href="{{ request.META.HTTP_REFERER }}">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                          viewBox="0 0 32 32">
+                        <title>arrow-left</title>
+                      <path
+                          d="M13.723 2.286l-13.723 13.714 13.719 13.714 1.616-1.611-10.96-10.96h27.625v-2.286h-27.625l10.965-10.965-1.616-1.607z">
+                      </path>
+                  </svg>
+                </a>
               <h3>Login</h3>
             </div>
           </div>
@@ -26,8 +34,8 @@
             <form class="form" action="" method="POST">
               {% csrf_token %}
               <div class="form__group form__group">
-                <label for="room_name">Username</label>
-                <input id="username" name="username" type="text" placeholder="e.g. username" />
+                <label for="room_name">Email</label>
+                <input id="username" name="email" type="text" placeholder="e.g. user@yourmail.com" />
               </div>
               <div class="form__group">
                 <label for="password">Password</label>
@@ -59,7 +67,6 @@
                 Login
               </button>
             </form>
-
             <div class="auth__action">
               <p>Haven't signed up yet?</p>
               <a href="{% url 'register' %}" class="btn btn--link">Sign Up</a>
@@ -68,10 +75,19 @@
         </div>
       </div>
       {% else %}
-            <div class="container">
-        <div class="layout__box">
+      <div class="container">
+        <div class="layout__box" style="margin-top: 5%;">
           <div class="layout__boxHeader">
             <div class="layout__boxTitle">
+              <a href="{{ request.META.HTTP_REFERER }}">
+                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
+                          viewBox="0 0 32 32">
+                        <title>arrow-left</title>
+                      <path
+                          d="M13.723 2.286l-13.723 13.714 13.719 13.714 1.616-1.611-10.96-10.96h27.625v-2.286h-27.625l10.965-10.965-1.616-1.607z">
+                      </path>
+                  </svg>
+                </a>
               <h3>Register</h3>
             </div>
           </div>
@@ -80,15 +96,12 @@
 
             <form class="form" action="" method="POST">
               {% csrf_token %}
-
-
               {% for field in form %}
               <div class="form__group form__group">
                 <label for="room_name">{{ field.label }}</label>
                 {{ field }}
               </div>
               {% endfor %}
-
 
               <button class="btn btn--main" type="submit">
                 <svg
@@ -106,11 +119,9 @@
                     d="M15 21.694v4.306h2v-4.306c0.587-0.348 1-0.961 1-1.694 0-1.105-0.895-2-2-2s-2 0.895-2 2c0 0.732 0.413 1.345 1 1.694z"
                   ></path>
                 </svg>
-
                 Register
               </button>
             </form>
-
             <div class="auth__action">
               <p>Haven't signed in?</p>
               <a href="{% url 'login' %}" class="btn btn--link">Sign in</a>

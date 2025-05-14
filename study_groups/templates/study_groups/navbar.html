@@ -4,7 +4,7 @@
       <div class="container">
         <a href="{% url 'study_group_home' %}" class="header__logo">
           <img src="{% static 'assets/study_groups/logo.svg' %}" />
-          <h1>StudyBuddy</h1>
+          <h1>RoomChat</h1>
         </a>
         <form class="header__search" method="GET" accept="{% url 'study_group_home' %}">
           <label>
@@ -23,9 +23,9 @@
         {% if user.is_authenticated %}
           <div class="header__user">
               <div class="avatar avatar--medium active">
-                <img src="https://randomuser.me/api/portraits/men/37.jpg" />
+                <img src="{{ user.avatar.url }}" />
               </div>
-              <p>{{user.username}} <span>@{{user.username}}</span></p>
+              <p>{{user.name}}<a href="{% url 'update_user' %}"><span>@{{user.username}}</span></a></p>
 
               <button class="dropdown-button">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
