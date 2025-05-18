@@ -39,14 +39,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # installed apps
-    'saas_app',
-    'notes',
-    'myspace',
+    'core',
+    'flashcards',
+    'mood_tracker',
+    'planner',
+    'smart_tutor',
     'study_groups',
     'study_tracker',
-    'tutor_ai',
     'users',
-    'flashcards',
+    'vault',
 ]
 
 AUTH_USER_MODEL = 'users.User'
@@ -136,6 +137,8 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static'
 ]
+
+OPENAI_API_KEY = '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'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'

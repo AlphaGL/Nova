@@ -18,15 +18,23 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
-
+    # 'core',
+    # 'falshcards',
+    # 'mood_tracker',
+    # 'planner',
+    # 'smart_tutor',
+    # 'study_groups',
+    # 'users',
+    # 'vault',
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('saas_app.urls')),
-    path('notes/', include('notes.urls')),
-    path('myspace/', include('myspace.urls')),
+    path('core/', include('core.urls')),
+    path('flashcards/', include('flashcards.urls')),
+    path('mood_tracker/', include('mood_tracker.urls')),
+    path('planner/', include('planner.urls')),
+    path('smart_tutor/', include('smart_tutor.urls')),
     path('study_groups/', include('study_groups.urls')),
     path('study_tracker/', include('study_tracker.urls')),
-    path('tutor_ai/', include('tutor_ai.urls')),
-    path('flashcards/', include('flashcards.urls')),
     path('users/', include('users.urls')),
+    path('vault/', include('vault.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
