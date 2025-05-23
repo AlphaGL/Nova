@@ -18,3 +18,7 @@ def generateChatResponse(prompt):
         print("OpenAI API error:", e)
         answer = 'Oops! You beat the AI. Try a different question. If the problem persists, come back later.'
     return answer
+
+
+
+# key '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'

@@ -1,0 +1,100 @@
+<!-- templates/cgpa.html -->
+{% extends 'study_tracker/base.html' %}
+
+{% block title %}
+  {{ semester.name }} - CGPA Calculator
+{% endblock %}
+
+{% block content %}
+  <h1>Calculate CGPA for {{ semester.name }} Semester {{ semester.year }} Level</h1>
+
+  <!-- Semester Selection Dropdown -->
+  <div class="dropdown mb-4">
+    <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+      Select Semester
+    </button>
+    <ul class="dropdown-menu">
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/1/">First (100)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/2/">Second (100)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/3/">First (200)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/4/">Second (200)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/5/">First (300)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/6/">Second (300)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/7/">First (400)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/8/">Second (400)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/9/">First (500)</a></li>
+      <li><a class="dropdown-item" href="http://127.0.0.1:8000/study_tracker/semester/10/">Second (500)</a></li>
+    </ul>
+  </div>
+
+  <!-- Add Course Form -->
+<form method="post" 
+      action="{% if course %}{% url 'course-edit' course.id %}{% else %}{% url 'course-add' semester.id %}{% endif %}" 
+      class="mb-4">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit" class="btn btn-{{ course|yesno:'warning,success' }}">
+    {% if course %}Update Course{% else %}Add Course{% endif %}
+  </button>
+</form>
+
+
+  <!-- Courses Table -->
+  <table class="table table-bordered">
+    <thead class="table-dark">
+      <tr>
+        <th>Course</th>
+        <th>Credits</th>
+        <th>Grade</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for course in courses %}
+        <tr>
+          <td>{{ course.name }}</td>
+          <td>{{ course.credits }}</td>
+          <td>{{ course.grade.letter }}</td>
+          <td>
+            <a href="{% url 'course-edit' course.id %}">Edit</a> |
+            <a href="{% url 'course-delete' course.id %}">Delete</a>
+          </td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="4" class="text-center">No courses added yet.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- CGPA Result -->
+  <p><strong>Your CGPA:</strong> {{ cgpa }}</p>
+
+  <!-- CGPA Chart -->
+  <canvas id="cgpa-chart" width="400" height="200"></canvas>
+
+  <script>
+    var ctx = document.getElementById('cgpa-chart').getContext('2d');
+    var chart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+          label: 'CGPA per Semester',
+          data: {{ chart_data|safe }},
+          backgroundColor: 'rgba(54, 162, 235, 0.5)',
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 5
+          }
+        }
+      }
+    });
+  </script>
+{% endblock %}
