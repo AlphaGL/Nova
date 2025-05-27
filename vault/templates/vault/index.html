@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Vault Smart Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #003973;
+      --secondary: #E5E5BE;
+      --bg-light: #f9f9f9;
+      --text-dark: #222;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      margin: 0;
+      padding: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      color: white;
+      margin-top: 30px;
+      text-align: center;
+      font-size: 2rem;
+    }
+
+    .description {
+      color: #fff;
+      text-align: center;
+      margin: 5px 20px 20px;
+      font-size: 1rem;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      margin: 20px;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    .search-bar button {
+      padding: 14px 20px;
+      background: #fff;
+      color: var(--primary);
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .search-bar button:hover {
+      background: #f0f0f0;
+    }
+
+    .results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+      width: 90%;
+      max-width: 1000px;
+      padding: 10px 0 40px;
+    }
+
+    .video-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+      transition: transform 0.2s ease;
+      cursor: pointer;
+    }
+
+    .video-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .video-card img {
+      width: 100%;
+      height: auto;
+    }
+
+    .video-card .content {
+      padding: 12px;
+    }
+
+    .video-card .title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+
+    .video-card .meta {
+      font-size: 0.85rem;
+      color: gray;
+    }
+
+    /* Modal Styling */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal iframe {
+      width: 90%;
+      max-width: 800px;
+      height: 450px;
+      border: none;
+      border-radius: 8px;
+    }
+
+    .modal .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 30px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .loader {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #003973;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 30px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media(max-width: 600px) {
+      .modal iframe {
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📺 Vault Smart Search</h1>
+  <div class="description">Smart search engine for pinpointing the best course-related YouTube videos</div>
+
+  <div class="search-bar">
+    <input type="text" id="query" placeholder="Search course topic here..." onkeydown="if(event.key==='Enter'){searchYouTube()}">
+    <button onclick="searchYouTube()">Search</button>
+  </div>
+
+  <div id="results" class="results"></div>
+  <div id="loader" class="loader" style="display:none;"></div>
+
+  <!-- Modal to show video -->
+  <div class="modal" id="videoModal">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <iframe id="videoPlayer" allowfullscreen></iframe>
+  </div>
+
+  <script>
+    const apiKey = 'AIzaSyADFWnFiIOowEf2gw_db8-wrTaObBs2qb4';
+
+    async function searchYouTube() {
+      const query = document.getElementById('query').value.trim();
+      const resultsDiv = document.getElementById('results');
+      const loader = document.getElementById('loader');
+      resultsDiv.innerHTML = '';
+      loader.style.display = 'block';
+
+      if (!query) {
+        alert("Enter a topic to search.");
+        loader.style.display = 'none';
+        return;
+      }
+
+      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=${encodeURIComponent(query)}&type=video&key=${apiKey}`;
+
+      try {
+        const res = await fetch(url);
+        const data = await res.json();
+        loader.style.display = 'none';
+
+        if (!data.items || data.items.length === 0) {
+          resultsDiv.innerHTML = '<p style="color:white;">No videos found.</p>';
+          return;
+        }
+
+        resultsDiv.innerHTML = data.items.map(video => {
+          const { videoId } = video.id;
+          const { title, channelTitle, publishedAt, thumbnails } = video.snippet;
+          const thumbnail = thumbnails.high.url;
+          const date = new Date(publishedAt).toLocaleDateString();
+
+          return `
+            <div class="video-card" onclick="playVideo('${videoId}')">
+              <img src="${thumbnail}" alt="${title}">
+              <div class="content">
+                <div class="title">${title}</div>
+                <div class="meta">By ${channelTitle} • ${date}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+      } catch (err) {
+        console.error(err);
+        loader.style.display = 'none';
+        resultsDiv.innerHTML = '<p style="color:white;">Error fetching videos. Try again later.</p>';
+      }
+    }
+
+    function playVideo(videoId) {
+      const modal = document.getElementById('videoModal');
+      const player = document.getElementById('videoPlayer');
+      player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('videoModal');
+      const player = document.getElementById('videoPlayer');
+      modal.style.display = 'none';
+      player.src = '';
+    }
+  </script>
+
+</body>
+</html>

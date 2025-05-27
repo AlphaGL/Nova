@@ -40,8 +40,7 @@ INSTALLED_APPS = [
 
     # installed apps
     'core',
-    'flashcards',
-    'mood_tracker',
+    'todo',
     'planner',
     'smart_tutor',
     'study_groups',

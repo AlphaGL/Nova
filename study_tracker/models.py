@@ -3,6 +3,7 @@ from django.db import models
 from users.models import User
 
 class Semester(models.Model):
+    user = user = models.ForeignKey(User, on_delete=models.CASCADE) 
     name = models.CharField(max_length=50)  # e.g., "Fall 2024"
     year = models.IntegerField()
     def __str__(self):

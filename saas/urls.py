@@ -28,9 +28,8 @@ from django.conf.urls.static import static
     # 'vault',
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('core/', include('core.urls')),
-    path('flashcards/', include('flashcards.urls')),
-    path('mood_tracker/', include('mood_tracker.urls')),
+    path('', include('core.urls')),
+    path('todo/', include('todo.urls')),
     path('planner/', include('planner.urls')),
     path('smart_tutor/', include('smart_tutor.urls')),
     path('study_groups/', include('study_groups.urls')),
