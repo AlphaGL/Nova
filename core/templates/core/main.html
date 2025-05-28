@@ -1,125 +1,237 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="light">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Student Tools Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+  <script>
+    // Save mode between sessions
+    if (localStorage.getItem('theme') === 'dark') {
+      document.documentElement.classList.add('dark');
+    }
+  </script>
 </head>
 <style>
-    body {
-  margin: 0;
-  padding: 0;
-  font-family: 'Poppins', sans-serif;
-  background: #f0f4f8;
-  color: #333;
-}
+  :root {
+    --light-bg: #f0f4f8;
+    --light-text: #333;
+    --dark-bg: #121212;
+    --dark-text: #f5f5f5;
+    --primary: #4e73df;
+    --accent: #1cc88a;
+  }
 
-header {
-  text-align: center;
-  padding: 2rem 1rem;
-  background-color: #4e73df;
-  color: white;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-}
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    background: var(--light-bg);
+    color: var(--light-text);
+    transition: background 0.3s, color 0.3s;
+  }
 
-.card-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 1.5rem;
-  padding: 2rem;
-  max-width: 1200px;
-  margin: auto;
-}
+  .dark body {
+    background: var(--dark-bg);
+    color: var(--dark-text);
+  }
 
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  text-align: center;
-  text-decoration: none;
-  color: #333;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
+  header {
+    text-align: center;
+    padding: 2rem 1rem;
+    background-color: var(--primary);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
 
-.card::before {
-  content: "";
-  position: absolute;
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(90deg, #4e73df, #1cc88a);
-  top: 0;
-  left: 0;
-  transition: height 0.3s ease;
-}
+  .toggle-switch {
+    position: absolute;
+    top: 1.2rem;
+    right: 1.5rem;
+    cursor: pointer;
+    font-size: 1.3rem;
+    user-select: none;
+  }
 
-.card:hover::before {
-  height: 100%;
-  opacity: 0.1;
-}
+  .card-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+    padding: 2rem;
+    max-width: 1200px;
+    margin: auto;
+  }
 
-.card:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
-}
+  .card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--light-text);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
 
-.card h2 {
-  margin-bottom: 0.5rem;
-  font-size: 1.4rem;
-}
+  .dark .card {
+    background: #1e1e1e;
+    color: var(--dark-text);
+  }
 
-.card p {
-  font-size: 0.95rem;
-  color: #666;
-}
+  .card::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 5px;
+    background: linear-gradient(90deg, var(--primary), var(--accent));
+    top: 0;
+    left: 0;
+    transition: height 0.3s ease;
+  }
 
+  .card:hover::before {
+    height: 100%;
+    opacity: 0.05;
+  }
+
+  .card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.15);
+  }
+
+  .card h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+  }
+
+  .card p {
+    font-size: 0.95rem;
+    color: #666;
+  }
+
+  .dark .card p {
+    color: #ccc;
+  }
+
+  footer {
+    text-align: center;
+    padding: 1rem;
+    color: #888;
+  }
+
+  .dark footer {
+    color: #aaa;
+  }
+
+  @media(max-width: 600px) {
+    .card-container {
+      padding: 1rem;
+    }
+  }
 </style>
 <body>
+
   <header>
     <h1>📚 Student Dashboard</h1>
     <p>Select a tool to boost your productivity and learning</p>
+    <div class="toggle-switch" onclick="toggleTheme()" title="Toggle light/dark mode">
+      <span id="modeLabel">🌞</span>
+    </div>
   </header>
+
+{% if user.is_authenticated %}
 
   <div class="card-container">
 
-    <a href="{% url 'vault' %}" class="card">
-        <h2>📺 Vault</h2>
-        <p>Smart search engine for pinpointing the best course-related videos</p>
+    <a href="{% url 'vault' %}" class="card" title="Open Vault">
+      <h2>📺 Vault</h2>
+      <p>Smart search engine for pinpointing the best course-related videos</p>
     </a>
 
-
-    <a href="/todo/" class="card">
-    <h2>🧠 My ToDo List</h2>
-    <p>Organize your study tasks, set priorities, and track your academic goals with ease.</p>
-    <p class="coming-soon">Coming Soon...</p>
-    </a>
-
-    <a href="/planner/" class="card">
+    <a href="{% url 'task_list' %}" class="card" title="Academic Planner">
       <h2>🗓️ Planner</h2>
       <p>Stay on track with your academic schedule</p>
-      <p style="color: #cf5a2c;">coming soon...</p>
+      <!-- <p style="color: #cf5a2c;">coming soon...</p> -->
     </a>
 
-    <a href="{% url 'chat_home' %}" class="card">
+    <!-- <a href="{% url 'chat_home' %}" class="card" title="AI Tutor">
       <h2>🤖 Smart Tutor</h2>
       <p>Ask anything – AI helps you learn fast</p>
       <p style="color: #cf5a2c;">coming soon...</p>
-    </a>
+    </a> -->
 
-    <a href="/study_groups/" class="card">
+    <!-- <a href="{% url 'study_group_home' %}" class="card" title="Join Study Groups">
       <h2>👥 Study Groups</h2>
       <p>Join or create study groups and collaborate</p>
       <p style="color: #cf5a2c;">coming soon...</p>
+    </a> -->
+
+    <a href="https://9pn7jgz7-8000.uks1.devtunnels.ms/study_tracker/semester/1/" class="card" title="Track Your Studies">
+    <!-- <a href="http://{{ request.get_host }}/study_tracker/semester/1/" class="card" title="Track Your Studies"> -->
+      <h2>📈 Study Tracker</h2>
+      <p>Keep track of your performance every semester and session</p>
     </a>
 
-    <a href="/study_tracker/" class="card">
+
+  </div>
+  {% else %}
+  
+  <div class="card-container">
+
+    <a href="{% url 'login' %}" class="card" title="Open Vault">
+      <h2>📺 Vault</h2>
+      <p>Smart search engine for pinpointing the best course-related videos</p>
+    </a>
+
+    <!-- <a href="{% url 'login' %}" class="card" title="Academic Planner">
+      <h2>🗓️ Planner</h2>
+      <p>Stay on track with your academic schedule</p>
+      <p style="color: #cf5a2c;">coming soon...</p>
+    </a> -->
+
+    <!-- <a href="{% url 'login' %}" class="card" title="AI Tutor">
+      <h2>🤖 Smart Tutor</h2>
+      <p>Ask anything – AI helps you learn fast</p>
+      <p style="color: #cf5a2c;">coming soon...</p>
+    </a> -->
+
+    <a href="{% url 'login' %}" class="card" title="Join Study Groups">
+      <h2>👥 Study Groups</h2>
+      <p>Join or create study groups and collaborate</p>
+      <!-- <p style="color: #cf5a2c;">coming soon...</p> -->
+    </a>
+
+    <a href="{% url 'login' %}" class="card" title="Track Your Studies">
       <h2>📈 Study Tracker</h2>
-      <p>Keep track of your performance every semester and sessions</p>
+      <p>Keep track of your performance every semester and session</p>
     </a>
 
   </div>
+  {% endif %}
+
+  <footer>
+    &copy; {{ now|default:2025 }} Student Tools | All rights reserved.
+  </footer>
+
+  <script>
+    const modeLabel = document.getElementById('modeLabel');
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      modeLabel.textContent = isDark ? '🌙' : '🌞';
+    }
+
+    // Initialize mode on load
+    window.addEventListener('DOMContentLoaded', () => {
+      const isDark = document.documentElement.classList.contains('dark');
+      modeLabel.textContent = isDark ? '🌙' : '🌞';
+    });
+  </script>
+
 </body>
 </html>

@@ -30,7 +30,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
     path('todo/', include('todo.urls')),
-    path('planner/', include('planner.urls')),
     path('smart_tutor/', include('smart_tutor.urls')),
     path('study_groups/', include('study_groups.urls')),
     path('study_tracker/', include('study_tracker.urls')),

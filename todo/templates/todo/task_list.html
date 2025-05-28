@@ -224,20 +224,19 @@
   </style>
 </head>
 <body>
+  {% include 'core/nav.html' %}
 
-  <h2>Hello {{ user.username }}, here's your ToDo List</h2>
 
-  <form method="POST">
-    {% csrf_token %}
-    {{ form.title }}
-    <!-- Add priority select -->
-    <select name="priority" style="padding:10px 15px; border-radius:8px; border:2px solid #bcccdc; font-size:1rem; margin-left: 10px;">
-      <option value="low" selected>Low Priority</option>
-      <option value="medium">Medium Priority</option>
-      <option value="high">High Priority</option>
-    </select>
-    <input type="submit" value="Add Task" />
-  </form>
+<form method="POST">
+  {% csrf_token %}
+  {{ form.title }}
+  
+  <input type="date" name="due_date" required style="padding:10px 15px; border-radius:8px; border:2px solid #bcccdc; font-size:1rem; margin-left:10px;" />
+
+  
+  <input type="submit" value="Add Task" />
+</form>
+
 
   <div class="controls">
     <div class="filters">
@@ -259,7 +258,7 @@
       <div class="actions">
         <a href="{% url 'toggle_complete' task.id %}" title="Toggle Complete">✔</a>
         <a href="{% url 'delete_task' task.id %}" title="Delete Task">🗑</a>
-        <button class="edit-btn" title="Edit Task">✏️</button>
+        <a href="{% url 'edit_task' task.id %}" class="edit-btn" title="Edit Task">✏️</a>
       </div>
     </div>
     {% empty %}
@@ -267,15 +266,13 @@
     {% endfor %}
   </div>
 
-  <p style="text-align:center; margin-top: 40px;">
-    <a href="{% url 'logout' %}">Logout</a>
+  <p style="text-align:center; margin-top: 20px;">
+    <a href="{% url 'custom_calendar_view' %}">📆 Task Calendar</a>
   </p>
 
-  <!-- Confetti canvas -->
   <canvas id="confetti-canvas"></canvas>
 
   <script>
-    // Filter tasks by all, active, completed
     const filterButtons = document.querySelectorAll('.filters button');
     const tasksContainer = document.getElementById('tasks-container');
 
@@ -283,10 +280,8 @@
       btn.addEventListener('click', () => {
         filterButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         const filter = btn.dataset.filter;
         const tasks = tasksContainer.querySelectorAll('.task');
-
         tasks.forEach(task => {
           const completed = task.dataset.completed === 'true';
           if (filter === 'all') {
@@ -300,143 +295,52 @@
       });
     });
 
-    // Clear completed tasks button functionality
     document.querySelector('.clear-btn').addEventListener('click', () => {
-      // You need backend handling for real deletion. For now, just hide completed.
       const tasks = tasksContainer.querySelectorAll('.task');
       tasks.forEach(task => {
         if (task.dataset.completed === 'true') {
-          // Redirect to delete URL or do AJAX delete in real app
-          // Here just remove from DOM for demo:
           task.remove();
         }
       });
     });
 
-    // Inline edit task title
+    // Inline edit functionality
     tasksContainer.addEventListener('click', (e) => {
       if (e.target.classList.contains('edit-btn')) {
         const taskDiv = e.target.closest('.task');
         const titleSpan = taskDiv.querySelector('.title');
-        if (taskDiv.querySelector('.edit-input')) return; // Already editing
+
+        if (taskDiv.querySelector('.edit-input')) return;
 
         const currentText = titleSpan.textContent;
         const input = document.createElement('input');
         input.type = 'text';
         input.value = currentText;
         input.className = 'edit-input';
+
         titleSpan.replaceWith(input);
         input.focus();
 
-        // Save on enter or blur (you should handle actual save via AJAX or form submit)
         input.addEventListener('blur', () => {
-          const newText = input.value.trim();
-          if (newText) {
-            // In real app, send AJAX update request here
-            const newSpan = document.createElement('span');
-            newSpan.className = 'title' + (taskDiv.dataset.completed === 'true' ? ' completed' : '');
-            newSpan.textContent = newText;
-            input.replaceWith(newSpan);
-          } else {
-            input.replaceWith(titleSpan);
+          const newTitle = input.value.trim();
+          if (newTitle && newTitle !== currentText) {
+            // TODO: Save via AJAX or redirect
+            titleSpan.textContent = newTitle;
           }
+          input.replaceWith(titleSpan);
         });
 
-        input.addEventListener('keydown', (evt) => {
-          if (evt.key === 'Enter') {
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') {
+            ev.preventDefault();
             input.blur();
-          } else if (evt.key === 'Escape') {
+          } else if (ev.key === 'Escape') {
             input.replaceWith(titleSpan);
           }
         });
       }
     });
-
-    // Confetti celebration on task complete toggle (demo with local update)
-    const confettiCanvas = document.getElementById('confetti-canvas');
-    const ctx = confettiCanvas.getContext('2d');
-    let confettiPieces = [];
-
-    function resizeCanvas() {
-      confettiCanvas.width = window.innerWidth;
-      confettiCanvas.height = window.innerHeight;
-    }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
-
-    class ConfettiPiece {
-      constructor() {
-        this.x = Math.random() * confettiCanvas.width;
-        this.y = Math.random() * confettiCanvas.height - confettiCanvas.height;
-        this.size = Math.random() * 8 + 4;
-        this.speed = Math.random() * 3 + 2;
-        this.angle = Math.random() * 360;
-        this.spin = Math.random() * 0.2 + 0.1;
-        this.color = `hsl(${Math.random() * 360}, 70%, 60%)`;
-      }
-      update() {
-        this.y += this.speed;
-        this.angle += this.spin;
-        if (this.y > confettiCanvas.height) {
-          this.y = -this.size;
-          this.x = Math.random() * confettiCanvas.width;
-        }
-      }
-      draw() {
-        ctx.save();
-        ctx.translate(this.x, this.y);
-        ctx.rotate(this.angle);
-        ctx.fillStyle = this.color;
-        ctx.fillRect(-this.size / 2, -this.size / 2, this.size, this.size / 3);
-        ctx.restore();
-      }
-    }
-
-    function createConfetti(count) {
-      confettiPieces = [];
-      for (let i = 0; i < count; i++) {
-        confettiPieces.push(new ConfettiPiece());
-      }
-    }
-
-    function renderConfetti() {
-      ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-      confettiPieces.forEach(piece => {
-        piece.update();
-        piece.draw();
-      });
-      if (confettiPieces.length > 0) {
-        requestAnimationFrame(renderConfetti);
-      }
-    }
-
-    function startConfetti() {
-      createConfetti(150);
-      renderConfetti();
-      setTimeout(() => {
-        confettiPieces = [];
-        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-      }, 4000);
-    }
-
-    // Attach confetti to checkbox toggle
-    tasksContainer.addEventListener('change', e => {
-      if (e.target.classList.contains('complete-checkbox')) {
-        const taskDiv = e.target.closest('.task');
-        const titleSpan = taskDiv.querySelector('.title');
-        if (e.target.checked) {
-          titleSpan.classList.add('completed');
-          taskDiv.dataset.completed = 'true';
-          startConfetti();
-          // Ideally, call toggle_complete URL via AJAX here
-        } else {
-          titleSpan.classList.remove('completed');
-          taskDiv.dataset.completed = 'false';
-          // Call toggle_complete URL via AJAX here
-        }
-      }
-    });
-
   </script>
+
 </body>
 </html>

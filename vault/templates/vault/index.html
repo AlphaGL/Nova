@@ -10,6 +10,9 @@
       --secondary: #E5E5BE;
       --bg-light: #f9f9f9;
       --text-dark: #222;
+      --dark-bg: #121212;
+      --dark-card: #1f1f1f;
+      --dark-text: #ddd;
     }
 
     * {
@@ -25,6 +28,12 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      transition: background 0.3s ease;
+    }
+
+    body.dark {
+      background: var(--dark-bg);
+      color: var(--dark-text);
     }
 
     h1 {
@@ -91,6 +100,10 @@
       cursor: pointer;
     }
 
+    body.dark .video-card {
+      background: var(--dark-card);
+    }
+
     .video-card:hover {
       transform: translateY(-5px);
     }
@@ -111,12 +124,19 @@
       margin-bottom: 5px;
     }
 
+    body.dark .video-card .title {
+      color: var(--dark-text);
+    }
+
     .video-card .meta {
       font-size: 0.85rem;
       color: gray;
     }
 
-    /* Modal Styling */
+    body.dark .video-card .meta {
+      color: #aaa;
+    }
+
     .modal {
       position: fixed;
       top: 0; left: 0;
@@ -126,7 +146,6 @@
       justify-content: center;
       align-items: center;
       z-index: 1000;
-      transition: opacity 0.3s ease;
     }
 
     .modal iframe {
@@ -162,6 +181,15 @@
       100% { transform: rotate(360deg); }
     }
 
+    .theme-toggle {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      z-index: 1100;
+    }
+
     @media(max-width: 600px) {
       .modal iframe {
         height: 250px;
@@ -170,6 +198,9 @@
   </style>
 </head>
 <body>
+  {% include 'core/nav.html' %}
+
+  <div class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle theme">🌞</div>
 
   <h1>📺 Vault Smart Search</h1>
   <div class="description">Smart search engine for pinpointing the best course-related YouTube videos</div>
@@ -182,7 +213,7 @@
   <div id="results" class="results"></div>
   <div id="loader" class="loader" style="display:none;"></div>
 
-  <!-- Modal to show video -->
+  <!-- Modal -->
   <div class="modal" id="videoModal">
     <span class="close" onclick="closeModal()">&times;</span>
     <iframe id="videoPlayer" allowfullscreen></iframe>
@@ -253,6 +284,22 @@
       modal.style.display = 'none';
       player.src = '';
     }
+
+    // Theme toggle logic
+    function toggleTheme() {
+      const body = document.body;
+      const isDark = body.classList.toggle('dark');
+      document.querySelector('.theme-toggle').textContent = isDark ? '🌙' : '🌞';
+      localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      if (savedTheme === 'dark') {
+        document.body.classList.add('dark');
+        document.querySelector('.theme-toggle').textContent = '🌙';
+      }
+    });
   </script>
 
 </body>

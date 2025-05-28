@@ -1,0 +1,123 @@
+<style>
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 1000;
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    padding: 0 10px;
+    transition: all 0.3s ease-in-out;
+  }
+
+  .nav-link {
+    flex-grow: 1;
+    text-align: center;
+    color: #64748b;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease-in-out;
+    padding: 10px 5px;
+    border-radius: 12px;
+  }
+
+  .nav-link:hover,
+  .nav-link:focus {
+    color: #3b82f6;
+    background-color: #e0edff;
+    transform: translateY(-4px);
+  }
+
+  .nav-link span {
+    font-size: 0.7rem;
+    margin-top: 2px;
+  }
+
+  @media (min-width: 768px) {
+    .bottom-nav {
+      width: 500px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 16px 16px 0 0;
+    }
+
+    .nav-link {
+      font-size: 0.9rem;
+    }
+
+    .nav-link span {
+      font-size: 0.75rem;
+    }
+  }
+
+  /* Smooth bounce animation for icon on hover */
+  .nav-link:hover svg,
+  .nav-link:hover .emoji {
+    animation: bounce 0.4s ease;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+</style>
+
+{% if user.is_authenticated %}
+<nav class="bottom-nav">
+  <a href="{% url 'vault' %}" class="nav-link">
+    <span class="emoji">📺</span>
+    <span>Vault</span>
+  </a>
+  <a href="{% url 'task_list' %}" class="nav-link">
+    <span class="emoji">🗓️</span>
+    <span>Planner</span>
+  </a>
+  <!-- <a href="{% url 'study_group_home' %}" class="nav-link">
+    <span class="emoji">👥</span>
+    <span>Groups</span>
+  </a> -->
+  <a href="http://127.0.0.1:8000/study_tracker/semester/1/" class="nav-link">
+    <span class="emoji">📈</span>
+    <span>Tracker</span>
+  </a>
+  <!-- <a href="{% url 'chat_home' %}" class="nav-link">
+    <span class="emoji">🤖</span>
+    <span>Tutor</span>
+  </a> -->
+</nav>
+
+{% else %}
+<nav class="bottom-nav">
+  <a href="{% url 'login' %}" class="nav-link">
+    <span class="emoji">📺</span>
+    <span>Vault</span>
+  </a>
+  <a href="{% url 'login' %}" class="nav-link">
+    <span class="emoji">🗓️</span>
+    <span>Planner</span>
+  </a>
+  <a href="{% url 'login' %}" class="nav-link">
+    <span class="emoji">👥</span>
+    <spanlogin>Groups</spanlogin>
+  </a>
+  <a href="{% url 'login' %}" class="nav-link">
+    <span class="emoji">📈</span>
+    <span>Tracker</span>
+  </a>
+  <a href="{% url 'login' %}" class="nav-link">
+    <span class="emoji">🤖</span>
+    <span>Tutor</span>
+  </a>
+</nav>
+
+{% endif %}

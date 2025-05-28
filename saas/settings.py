@@ -41,7 +41,6 @@ INSTALLED_APPS = [
     # installed apps
     'core',
     'todo',
-    'planner',
     'smart_tutor',
     'study_groups',
     'study_tracker',

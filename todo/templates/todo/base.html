@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Todo{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+        };
+    </script>
+    <style>
+        .toggle-switch {
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+  {% include 'core/nav.html' %}
+<body class="bg-white text-gray-800 dark:bg-gray-900 dark:text-white transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    
+    <div class="toggle-switch" onclick="toggleTheme()">
+        <span id="modeLabel" class="text-xl">🌞</span>
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow container mx-auto px-4 py-6">
+        {% block content %}
+        {% endblock %}
+    </main>
+    <!-- Persistent Dark Mode Toggle Script -->
+    <script>
+        const modeLabel = document.getElementById('modeLabel');
+
+        function setTheme(mode) {
+            const html = document.documentElement;
+            if (mode === 'dark') {
+                html.classList.add('dark');
+                modeLabel.textContent = '🌙';
+            } else {
+                html.classList.remove('dark');
+                modeLabel.textContent = '🌞';
+            }
+        }
+
+        function toggleTheme() {
+            const currentMode = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+            const newMode = currentMode === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', newMode);
+            setTheme(newMode);
+        }
+
+        // Load saved theme
+        document.addEventListener('DOMContentLoaded', () => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            setTheme(savedTheme);
+        });
+    </script>
+</body>
+</html>
