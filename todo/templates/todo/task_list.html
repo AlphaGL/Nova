@@ -2,9 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>My ToDo List</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nova Planner</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
   <style>
-    /* Reset and base */
     * {
       box-sizing: border-box;
     }
@@ -13,7 +14,7 @@
       background: linear-gradient(135deg, #f0f4f8, #d9e2ec);
       margin: 0;
       padding: 40px 20px;
-      max-width: 600px;
+      max-width: 700px;
       margin-left: auto;
       margin-right: auto;
       color: #102a43;
@@ -26,24 +27,24 @@
       text-align: center;
       color: #334e68;
     }
-
-    /* Form */
+    .color-selectors {
+      text-align: center;
+      margin-bottom: 20px;
+    }
     form {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
       margin-bottom: 30px;
     }
-    form input[type="text"] {
+    form input[type="text"],
+    form input[type="date"] {
       flex-grow: 1;
       padding: 12px 15px;
       font-size: 1rem;
       border-radius: 8px;
       border: 2px solid #bcccdc;
       transition: border-color 0.3s ease;
-    }
-    form input[type="text"]:focus {
-      border-color: #3f83f8;
-      outline: none;
     }
     form input[type="submit"] {
       background-color: #3f83f8;
@@ -59,16 +60,17 @@
     form input[type="submit"]:hover {
       background-color: #2c6cdf;
     }
-
-    /* Filters & Clear */
     .controls {
       display: flex;
       justify-content: space-between;
       margin-bottom: 20px;
       align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
     }
     .filters {
       display: flex;
+      flex-wrap: wrap;
       gap: 10px;
     }
     .filters button {
@@ -100,8 +102,6 @@
     .clear-btn:hover {
       background-color: #c62828;
     }
-
-    /* Task list */
     .task {
       background: white;
       border-radius: 10px;
@@ -111,38 +111,41 @@
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 4px 8px rgb(0 0 0 / 0.05);
-      transition: box-shadow 0.3s ease;
+      flex-wrap: wrap;
     }
-    .task:hover {
-      box-shadow: 0 6px 12px rgb(0 0 0 / 0.1);
+    .task.overdue {
+      border-left: 5px solid red;
+      background-color: #ffe6e6;
     }
-    .task .left {
+    .left {
       display: flex;
-      align-items: center;
-      gap: 15px;
+      flex-direction: column;
       flex-grow: 1;
       min-width: 0;
+    }
+    .task-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
     }
     .task input[type="checkbox"] {
       width: 20px;
       height: 20px;
       cursor: pointer;
     }
-    .task span.title {
+    .title {
       font-size: 1.1rem;
       color: #334e68;
       word-break: break-word;
       flex-grow: 1;
       cursor: pointer;
-      transition: color 0.3s ease;
     }
-    .task span.title.completed {
+    .title.completed {
       text-decoration: line-through;
       color: #9aa5b1;
       font-style: italic;
     }
-
-    /* Priority tags */
     .priority-tag {
       padding: 3px 10px;
       border-radius: 20px;
@@ -151,7 +154,6 @@
       text-transform: uppercase;
       letter-spacing: 0.05em;
       user-select: none;
-      flex-shrink: 0;
     }
     .priority-high {
       background-color: #f44336;
@@ -165,78 +167,81 @@
       background-color: #4caf50;
       color: white;
     }
-
-    /* Actions */
+    .due-date {
+      font-size: 0.9rem;
+      color: #627d98;
+      margin-top: 5px;
+    }
     .actions {
       display: flex;
-      gap: 12px;
-      flex-shrink: 0;
+      gap: 10px;
+      margin-left: 10px;
     }
-    .actions a,
-    .actions button {
-      cursor: pointer;
-      font-size: 1.3rem;
-      text-decoration: none;
+    .actions a {
+      font-size: 1.2rem;
       color: #627d98;
-      transition: color 0.3s ease;
-      border: none;
-      background: transparent;
+      text-decoration: none;
+      transition: color 0.3s;
     }
-    .actions a:hover,
-    .actions button:hover {
+    .actions a:hover {
       color: #3f83f8;
     }
-
-    /* Inline edit input */
     .edit-input {
       font-size: 1.1rem;
       padding: 5px 10px;
       border-radius: 8px;
       border: 2px solid #bcccdc;
       width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
     }
-
-    /* Responsive */
-    @media (max-width: 480px) {
+    @media (max-width: 600px) {
       body {
-        padding: 20px 15px;
+        padding: 20px 10px;
       }
-      form input[type="text"] {
-        width: 60%;
+      h2 {
+        font-size: 1.6rem;
       }
-      form input[type="submit"] {
-        padding: 12px 10px;
+      form {
+        flex-direction: column;
       }
-    }
-
-    /* Confetti canvas */
-    #confetti-canvas {
-      pointer-events: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 9999;
+      .controls {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .task {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+      .actions {
+        margin-left: 0;
+      }
     }
   </style>
 </head>
-<body>
+<body style="margin-bottom:10%;">
   {% include 'core/nav.html' %}
 
+  <h2>My Planner</h2>
 
-<form method="POST">
-  {% csrf_token %}
-  {{ form.title }}
-  
-  <input type="date" name="due_date" required style="padding:10px 15px; border-radius:8px; border:2px solid #bcccdc; font-size:1rem; margin-left:10px;" />
+  <!-- Color pickers -->
+  <div class="color-selectors">
+    <label>
+      Background Color: 
+      <input type="color" id="bg-color-picker" value="#f0f4f8" />
+    </label>
+    &nbsp;&nbsp;
+    <label>
+      Text Color: 
+      <input type="color" id="text-color-picker" value="#102a43" />
+    </label>
+  </div>
 
-  
-  <input type="submit" value="Add Task" />
-</form>
-
+  <form method="POST">
+    {% csrf_token %}
+    {{ form.title }}
+    <input type="date" name="due_date" required />
+    <input type="submit" value="Add Task" />
+  </form>
 
   <div class="controls">
     <div class="filters">
@@ -244,33 +249,37 @@
       <button data-filter="active">Active</button>
       <button data-filter="completed">Completed</button>
     </div>
-    <button class="clear-btn">Hide Completed</button>
+    <button class="clear-btn">Hide Completed Tasks</button>
+    <a class="btn btn-outline-danger" href="{% url 'custom_calendar_view' %}">📆 Task Calendar</a>
   </div>
 
   <div id="tasks-container">
     {% for task in tasks %}
-    <div class="task" data-priority="{{ task.priority }}" data-completed="{{ task.completed|yesno:'true,false' }}" data-id="{{ task.id }}">
+    <div class="task {% if task.due_date and task.due_date < today and not task.completed %}overdue{% endif %}"
+         data-priority="{{ task.priority }}"
+         data-completed="{{ task.completed|yesno:'true,false' }}"
+         data-id="{{ task.id }}">
+
       <div class="left">
-        <input type="checkbox" class="complete-checkbox" {% if task.completed %}checked{% endif %} />
-        <span class="title {% if task.completed %}completed{% endif %}">{{ task.title }}</span>
-        <span class="priority-tag priority-{{ task.priority }}">{{ task.priority|title }}</span>
+        <div class="task-header">
+          <input type="checkbox" class="complete-checkbox" {% if task.completed %}checked{% endif %} />
+          <span class="title {% if task.completed %}completed{% endif %}">{{ task.title }}</span>
+          <span class="priority-tag priority-{{ task.priority }}">{{ task.priority|title }}</span>
+        </div>
+        {% if task.due_date %}
+          <span class="due-date">Due: {{ task.due_date }}</span>
+        {% endif %}
       </div>
       <div class="actions">
         <a href="{% url 'toggle_complete' task.id %}" title="Toggle Complete">✔</a>
         <a href="{% url 'delete_task' task.id %}" title="Delete Task">🗑</a>
-        <a href="{% url 'edit_task' task.id %}" class="edit-btn" title="Edit Task">✏️</a>
+        <a href="{% url 'edit_task' task.id %}">✏️</a>
       </div>
     </div>
     {% empty %}
       <p>No tasks yet.</p>
     {% endfor %}
   </div>
-
-  <p style="text-align:center; margin-top: 20px;">
-    <a href="{% url 'custom_calendar_view' %}">📆 Task Calendar</a>
-  </p>
-
-  <canvas id="confetti-canvas"></canvas>
 
   <script>
     const filterButtons = document.querySelectorAll('.filters button');
@@ -304,15 +313,15 @@
       });
     });
 
-    // Inline edit functionality
     tasksContainer.addEventListener('click', (e) => {
       if (e.target.classList.contains('edit-btn')) {
+        e.preventDefault();
         const taskDiv = e.target.closest('.task');
         const titleSpan = taskDiv.querySelector('.title');
+        const currentText = titleSpan.textContent.trim();
 
         if (taskDiv.querySelector('.edit-input')) return;
 
-        const currentText = titleSpan.textContent;
         const input = document.createElement('input');
         input.type = 'text';
         input.value = currentText;
@@ -324,13 +333,13 @@
         input.addEventListener('blur', () => {
           const newTitle = input.value.trim();
           if (newTitle && newTitle !== currentText) {
-            // TODO: Save via AJAX or redirect
             titleSpan.textContent = newTitle;
+            // Ideally, use AJAX here to update backend
           }
           input.replaceWith(titleSpan);
         });
 
-        input.addEventListener('keydown', (ev) => {
+        input.addEventListener('keydown', ev => {
           if (ev.key === 'Enter') {
             ev.preventDefault();
             input.blur();
@@ -340,7 +349,19 @@
         });
       }
     });
-  </script>
 
+    // Background and text color selectors
+    document.getElementById('bg-color-picker').addEventListener('input', function () {
+      document.body.style.background = this.value;
+    });
+
+    document.getElementById('text-color-picker').addEventListener('input', function () {
+      document.body.style.color = this.value;
+      document.querySelectorAll('.title').forEach(el => {
+        if (!el.classList.contains('completed')) el.style.color = this.value;
+      });
+    });
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js" integrity="sha384-j1CDi7MgGQ12Z7Qab0qlWQ/Qqz24Gc6BM0thvEMVjHnfYGF0rmFCozFSxQBxwHKO" crossorigin="anonymous"></script>
 </body>
 </html>

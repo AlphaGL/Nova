@@ -41,8 +41,6 @@ INSTALLED_APPS = [
     # installed apps
     'core',
     'todo',
-    'smart_tutor',
-    'study_groups',
     'study_tracker',
     'users',
     'vault',
@@ -132,14 +130,8 @@ USE_TZ = True
 STATIC_URL = 'static/'
 
 
-STATICFILES_DIRS = [
-    BASE_DIR / 'static'
-]
-
 OPENAI_API_KEY = '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'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 
 # Default primary key field type

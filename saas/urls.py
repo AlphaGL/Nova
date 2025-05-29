@@ -18,20 +18,10 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf import settings
 from django.conf.urls.static import static
-    # 'core',
-    # 'falshcards',
-    # 'mood_tracker',
-    # 'planner',
-    # 'smart_tutor',
-    # 'study_groups',
-    # 'users',
-    # 'vault',
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
-    path('todo/', include('todo.urls')),
-    path('smart_tutor/', include('smart_tutor.urls')),
-    path('study_groups/', include('study_groups.urls')),
+    path('planner/', include('todo.urls')),
     path('study_tracker/', include('study_tracker.urls')),
     path('users/', include('users.urls')),
     path('vault/', include('vault.urls')),
