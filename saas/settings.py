@@ -10,7 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates/')
 
 # Secret key & debug
-SECRET_KEY = 'django-insecure-nxq%w=%4@0b-qy(px!ze21chlq@t2ifd)o7-dw_t8ld+iwihh9'  # fallback for dev only
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev-key")  # fallback for dev only
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
@@ -100,8 +100,8 @@ LOGOUT_REDIRECT_URL = 'home'
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': '642461121873-83fcnmachqbsnuva6j7cf3nk11kn0evn.apps.googleusercontent.com',
-            'secret': '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',
+            'client_id': os.getenv("GOOGLE_CLIENT_ID"),
+            'secret': os.getenv("GOOGLE_CLIENT_SECRET"),
             'key': ''
         }
     }
@@ -131,6 +131,9 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = 'static/'
+
+# OpenAI API Key (for future use)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # Primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
