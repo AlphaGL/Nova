@@ -74,6 +74,10 @@
 
 {% if user.is_authenticated %}
 <nav class="bottom-nav">
+    <a href="{% url 'home' %}" class="nav-link">
+    <span class="emoji">🏠</span>
+    <span>Home</span>
+  </a>
   <a href="{% url 'vault' %}" class="nav-link">
     <span class="emoji">📺</span>
     <span>Vault</span>
@@ -82,7 +86,7 @@
     <span class="emoji">🗓️</span>
     <span>Planner</span>
   </a>
-  <a href="http://127.0.0.1:8000/study_tracker/semester/1/" class="nav-link">
+  <a href="https://9pn7jgz7-8000.uks1.devtunnels.ms/study_tracker/semester/1/" class="nav-link">
     <span class="emoji">📈</span>
     <span>CGPA Calculator</span>
   </a>
@@ -90,7 +94,11 @@
 
 {% else %}
 <nav class="bottom-nav">
-  <a href="{% url 'login' %}" class="nav-link">
+  <a href="{% url 'home' %}" class="nav-link">
+    <span class="emoji">🏠</span>
+    <span>Home</span>
+  </a>
+  <a href="{% url 'vault' %}" class="nav-link">
     <span class="emoji">📺</span>
     <span>Vault</span>
   </a>
@@ -98,7 +106,7 @@
     <span class="emoji">🗓️</span>
     <span>Planner</span>
   </a>
-  <a href="{% url 'login' %}" class="nav-link">
+  <a href="{% url 'study_tracker_free_home' %}" class="nav-link">
     <span class="emoji">📈</span>
     <span>CGPA Calculator</span>
   </a>

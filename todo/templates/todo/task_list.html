@@ -221,7 +221,7 @@
 <body style="margin-bottom:10%;">
   {% include 'core/nav.html' %}
 
-  <h2>My Planner</h2>
+  <h2>Nova Planner</h2>
 
   <!-- Color pickers -->
   <div class="color-selectors">
@@ -240,7 +240,7 @@
     {% csrf_token %}
     {{ form.title }}
     <input type="date" name="due_date" required />
-    <input type="submit" value="Add Task" />
+    <input type="submit" value="Add To Plans" />
   </form>
 
   <div class="controls">
@@ -249,8 +249,8 @@
       <button data-filter="active">Active</button>
       <button data-filter="completed">Completed</button>
     </div>
-    <button class="clear-btn">Hide Completed Tasks</button>
-    <a class="btn btn-outline-danger" href="{% url 'custom_calendar_view' %}">📆 Task Calendar</a>
+    <button class="clear-btn">Hide checked plans</button>
+    <a class="btn btn-outline-danger" href="{% url 'custom_calendar_view' %}">📆 Review your plans</a>
   </div>
 
   <div id="tasks-container">

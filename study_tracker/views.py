@@ -1,12 +1,15 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Semester, Course
 from .forms import CourseForm
+from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 
 
 def home(request):
     return render(request, 'study_tracker/index.html')
 
+class CgpaHome(TemplateView):
+    template_name = 'study_tracker/free-cgpa.html'
 
 @login_required(login_url='/users/login')
 def calculate_cgpa_for_semester(semester, user):

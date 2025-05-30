@@ -1,134 +1,242 @@
-{% extends 'users/base.html' %}
+<!DOCTYPE html>
 {% load static %}
-{% block content %}
-    <main class="auth layout">
-      {% if page == 'login' %}
-      <div class="container">
-        <div class="layout__box">
-          <div class="layout__boxHeader">
-            <div class="layout__boxTitle">
-              <a href="{{ request.META.HTTP_REFERER }}">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                          viewBox="0 0 32 32">
-                        <title>arrow-left</title>
-                      <path
-                          d="M13.723 2.286l-13.723 13.714 13.719 13.714 1.616-1.611-10.96-10.96h27.625v-2.286h-27.625l10.965-10.965-1.616-1.607z">
-                      </path>
-                  </svg>
-                </a>
-              <h3>Login</h3>
-            </div>
-          </div>
-          <div class="layout__body">
-            <h2 class="auth__tagline">Welcome back</h2>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% if page == 'login' %}Login{% else %}Register{% endif %} - Nova</title>
+</head>
+<style>
+  :root {
+  --bg: #f9f9f9;
+  --text: #111;
+  --box-bg: #fff;
+  --btn-bg: #007BFF;
+  --btn-text: #fff;
+}
 
-                {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li>{{ message }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
+[data-theme='dark'] {
+  --bg: #121212;
+  --text: #f5f5f5;
+  --box-bg: #1e1e1e;
+  --btn-bg: #1a73e8;
+  --btn-text: #fff;
+}
 
+body {
+  margin: 0;
+  font-family: 'Segoe UI', sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
 
-            <form class="form" action="" method="POST">
-              {% csrf_token %}
-              <div class="form__group form__group">
-                <label for="room_name">Email</label>
-                <input id="username" name="email" type="text" placeholder="e.g. user@yourmail.com" />
-              </div>
-              <div class="form__group">
-                <label for="password">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                />
-              </div>
+.auth-wrapper {
+  width: 100%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-              <button class="btn btn--main" type="submit">
-                <svg
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 32 32"
-                >
-                  <title>lock</title>
-                  <path
-                    d="M27 12h-1v-2c0-5.514-4.486-10-10-10s-10 4.486-10 10v2h-1c-0.553 0-1 0.447-1 1v18c0 0.553 0.447 1 1 1h22c0.553 0 1-0.447 1-1v-18c0-0.553-0.447-1-1-1zM8 10c0-4.411 3.589-8 8-8s8 3.589 8 8v2h-16v-2zM26 30h-20v-16h20v16z"
-                  ></path>
-                  <path
-                    d="M15 21.694v4.306h2v-4.306c0.587-0.348 1-0.961 1-1.694 0-1.105-0.895-2-2-2s-2 0.895-2 2c0 0.732 0.413 1.345 1 1.694z"
-                  ></path>
-                </svg>
+.theme-toggle {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+}
 
-                Login
-              </button>
-            </form>
-            <div class="auth__action">
-              <p>Haven't signed up yet?</p>
-              <a href="{% url 'register' %}" class="btn btn--link">Sign Up</a>
-            </div>
-          </div>
-        </div>
+#themeBtn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+.auth-box {
+  background: var(--box-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+}
+
+.animate-slide {
+  animation: slideIn 0.6s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.back-arrow {
+  font-size: 1.5rem;
+  text-decoration: none;
+  color: var(--text);
+  transition: color 0.3s ease;
+}
+
+.back-arrow:hover {
+  color: var(--btn-bg);
+}
+
+.tagline {
+  margin: 1rem 0 2rem;
+  font-size: 1.1rem;
+  color: gray;
+}
+
+.form__group {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.form__group label {
+  margin-bottom: 0.5rem;
+}
+
+.form__group input {
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: transparent;
+  color: var(--text);
+}
+
+.form__group input:focus {
+  border-color: var(--btn-bg);
+  outline: none;
+  background-color: rgba(0, 123, 255, 0.05);
+}
+
+.btn-main {
+  width: 100%;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+  padding: 0.8rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.btn-main:hover {
+  background-color: #0056b3;
+}
+
+.auth__action {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.auth__action a {
+  color: var(--btn-bg);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+</style>
+<body>
+
+  <main class="auth-wrapper">
+    <div class="theme-toggle">
+      <button id="themeBtn">🌞</button>
+    </div>
+    
+    <div class="auth-box animate-slide">
+      <div class="header">
+        <a href="{% url 'home' %}" class="back-arrow">←</a>
+        <h2>{% if page == 'login' %}Login{% else %}Register{% endif %}</h2>
       </div>
-      {% else %}
-      <div class="container">
-        <div class="layout__box" style="margin-top: 5%;">
-          <div class="layout__boxHeader">
-            <div class="layout__boxTitle">
-              <a href="{{ request.META.HTTP_REFERER }}">
-                <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="32" height="32"
-                          viewBox="0 0 32 32">
-                        <title>arrow-left</title>
-                      <path
-                          d="M13.723 2.286l-13.723 13.714 13.719 13.714 1.616-1.611-10.96-10.96h27.625v-2.286h-27.625l10.965-10.965-1.616-1.607z">
-                      </path>
-                  </svg>
-                </a>
-              <h3>Register</h3>
-            </div>
-          </div>
-          <div class="layout__body">
-            <h2 class="auth__tagline">Join us</h2>
 
-            <form class="form" action="" method="POST">
-              {% csrf_token %}
-              {% for field in form %}
-              <div class="form__group form__group">
-                <label for="room_name">{{ field.label }}</label>
-                {{ field }}
-              </div>
-              {% endfor %}
+      <p class="tagline">{% if page == 'login' %}Welcome back{% else %}Join Nova{% endif %}</p>
 
-              <button class="btn btn--main" type="submit">
-                <svg
-                  version="1.1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="32"
-                  height="32"
-                  viewBox="0 0 32 32"
-                >
-                  <title>lock</title>
-                  <path
-                    d="M27 12h-1v-2c0-5.514-4.486-10-10-10s-10 4.486-10 10v2h-1c-0.553 0-1 0.447-1 1v18c0 0.553 0.447 1 1 1h22c0.553 0 1-0.447 1-1v-18c0-0.553-0.447-1-1-1zM8 10c0-4.411 3.589-8 8-8s8 3.589 8 8v2h-16v-2zM26 30h-20v-16h20v16z"
-                  ></path>
-                  <path
-                    d="M15 21.694v4.306h2v-4.306c0.587-0.348 1-0.961 1-1.694 0-1.105-0.895-2-2-2s-2 0.895-2 2c0 0.732 0.413 1.345 1 1.694z"
-                  ></path>
-                </svg>
-                Register
-              </button>
-            </form>
-            <div class="auth__action">
-              <p>Haven't signed in?</p>
-              <a href="{% url 'login' %}" class="btn btn--link">Sign in</a>
-            </div>
-          </div>
-        </div>
-      </div>
+      {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+      </ul>
       {% endif %}
-    </main>
-{% endblock %}
+
+      <form class="form" method="POST">
+        {% csrf_token %}
+        {% if page == 'login' %}
+        <div class="form__group">
+          <label for="username">Email</label>
+          <input id="username" name="email" type="email" placeholder="e.g. user@yourmail.com" required />
+        </div>
+        <div class="form__group">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" placeholder="••••••••" required />
+        </div>
+        {% else %}
+          {% for field in form %}
+          <div class="form__group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+          </div>
+          {% endfor %}
+        {% endif %}
+
+        <button class="btn-main" type="submit">{% if page == 'login' %}Login{% else %}Register{% endif %}</button>
+      </form>
+
+      <div class="auth__action">
+        {% if page == 'login' %}
+        <p>Haven't signed up yet? <a href="{% url 'register' %}">Sign Up</a></p>
+        {% else %}
+        <p>Already have an account? <a href="{% url 'login' %}">Sign In</a></p>
+        {% endif %}
+      </div>
+    </div>
+  </main>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+  const themeBtn = document.getElementById("themeBtn");
+  const html = document.documentElement;
+
+  // Load saved theme
+  const savedTheme = localStorage.getItem("theme");
+  if (savedTheme) html.setAttribute("data-theme", savedTheme);
+
+  updateIcon();
+
+  themeBtn.addEventListener("click", () => {
+    const current = html.getAttribute("data-theme");
+    const newTheme = current === "dark" ? "light" : "dark";
+    html.setAttribute("data-theme", newTheme);
+    localStorage.setItem("theme", newTheme);
+    updateIcon();
+  });
+
+  function updateIcon() {
+    const current = html.getAttribute("data-theme");
+    themeBtn.textContent = current === "dark" ? "🌞" : "🌙";
+  }
+});
+
+</script>
+</body>
+</html>

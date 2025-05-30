@@ -88,8 +88,32 @@
     }
 
     header {
+      position: relative;
       text-align: center;
       padding: 3rem 1rem 2rem;
+    }
+
+    /* LOGIN BUTTON */
+    .login-btn {
+      position: absolute;
+      top: 1.5rem;
+      right: 2rem;
+      background: transparent;
+      border: 2px solid var(--secondary);
+      color: var(--secondary);
+      padding: 0.5rem 1rem;
+      border-radius: 25px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      text-decoration: none;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .login-btn:hover {
+      background-color: var(--secondary);
+      color: var(--primary);
     }
 
     header h2 {
@@ -198,6 +222,12 @@
       header h2 {
         font-size: 2.5rem;
       }
+      .login-btn {
+        top: 1rem;
+        right: 1rem;
+        font-size: 0.9rem;
+        padding: 0.4rem 0.8rem;
+      }
     }
   </style>
 </head>
@@ -207,11 +237,20 @@
   <div class="grid-bg"></div>
 
   <header>
-    <h2>NOVA</h2>
-    <p><em>Empowering your knowledge journey, one spark at a time</em></p>
-  </header>
+    {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}" class="login-btn">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" class="login-btn">Login</a>
+    {% endif %}
 
-  {% if user.is_authenticated %}
+    <h2>NOVA</h2>
+    <p>Welcome to NOVA — your all-in-one student support tool.</p>
+    <p><em>Plan better. Learn smarter. Stay on track.</em></p>
+
+    <br>
+
+
+{% if user.is_authenticated %}
   <div class="card-container">
     <a href="{% url 'vault' %}" class="card">
       <h2>📺 Vault</h2>
@@ -228,24 +267,25 @@
       <p>Monitor your academic or personal learning journey over time.</p>
     </a>
   </div>
-  {% else %}
+{% else %}
   <div class="card-container">
-    <a href="{% url 'login' %}" class="card">
+    <a href="{% url 'vault' %}" class="card">
       <h2>📺 Vault</h2>
-      <p>Curated smart search for top-quality educational resources.</p>
+      <p>Curated smart search for the best learning resources and videos.</p>
     </a>
 
     <a href="{% url 'login' %}" class="card">
       <h2>📅 Planner</h2>
-      <p>Boost your productivity by organizing your learning goals.</p>
+      <p>Organize your goals, tasks, and study sessions with ease.</p>
     </a>
 
-    <a href="{% url 'login' %}" class="card">
+    <a href="{% url 'study_tracker_free_home' %}" class="card">
       <h2>📈 CGPA Calculator</h2>
-      <p>Track your personal or academic growth step-by-step.</p>
+      <p>Monitor your academic or personal learning journey over time.</p>
     </a>
   </div>
-  {% endif %}
+{% endif %}
+
 
   <footer>
     &copy; Nova

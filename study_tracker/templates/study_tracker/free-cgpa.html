@@ -1,0 +1,388 @@
+{% if user.is_authenticated %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NOVA-CGPA CALCULATOR</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 { color: #0056b3; }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    button {
+      background: #0056b3;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #003d80; }
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th { background: #0056b3; color: white; }
+    .edit-btn { background: orange; }
+    .delete-btn { background: red; }
+
+    @media (max-width: 768px) {
+      .banner {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+      }
+      .banner h3 {
+        font-size: 1.2em;
+      }
+      .banner p {
+        font-size: 1em;
+      }
+      .banner a {
+        font-size: 0.9em;
+        width: 100%;
+        text-align: center;
+        padding: 15px;
+      }
+      .banner > div {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+  <!-- Authentication Actions -->
+<div class="container">
+               <p>Welcome back, {{ user.username }}! You can view and manage your CGPA records on your dashboard.</p>
+        <a href="https://9pn7jgz7-8000.uks1.devtunnels.ms/study_tracker/semester/1/" style="display: inline-block; background: #28a745; color: white; padding: 10px; text-decoration: none; margin-top: 10px;">
+            📊 Go to Your CGPA Dashboard
+        </a>
+</div>
+
+{% include 'core/nav.html' %}
+
+
+{% else %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NOVA-CGPA CALCULATOR</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f4f4f4;
+      text-align: center;
+    }
+
+    .container {
+      width: 90%;
+      max-width: 800px;
+      margin: 20px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    h1 { color: #0056b3; }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+    button {
+      background: #0056b3;
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover { background: #003d80; }
+    table {
+      width: 100%;
+      margin-top: 15px;
+      border-collapse: collapse;
+    }
+    th, td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: left;
+    }
+    th { background: #0056b3; color: white; }
+    .edit-btn { background: orange; }
+    .delete-btn { background: red; }
+
+    @media (max-width: 768px) {
+      .banner {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+      }
+      .banner h3 {
+        font-size: 1.2em;
+      }
+      .banner p {
+        font-size: 1em;
+      }
+      .banner a {
+        font-size: 0.9em;
+        width: 100%;
+        text-align: center;
+        padding: 15px;
+      }
+      .banner > div {
+        width: 100%;
+        margin-top: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📘 Advanced CGPA Calculator</h1>
+
+  <!-- Authentication Actions -->
+<div class="container">
+        <p>If you want to save your CGPA and access your history, please log in.</p>
+        <a href="{% url 'login' %}" style="display: inline-block; background: #0056b3; color: white; padding: 10px; text-decoration: none; margin-top: 10px;">🔐 Login to Save CGPA</a>
+</div>
+
+{% include 'core/nav.html' %}
+
+  <!-- Semester Selection -->
+  <div class="container">
+    <h2>📚 Select Semester</h2>
+    <select id="semesterList" onchange="changeSemester()">
+      <option value="first">First Semester</option>
+      <option value="second">Second Semester</option>
+    </select>
+  </div>
+
+  <!-- Course Management -->
+  <div class="container">
+    <h2>🎓 Manage Courses</h2>
+    <input type="text" id="courseName" placeholder="Course Name">
+    <input type="number" id="credit" placeholder="Credit Unit">
+    <select id="grade">
+      <option value="5">A (5.0)</option>
+      <option value="4">B (4.0)</option>
+      <option value="3">C (3.0)</option>
+      <option value="2">D (2.0)</option>
+      <option value="1">E (1.0)</option>
+      <option value="0">F (0.0)</option>
+    </select>
+    <button id="addButton" onclick="addCourse()">➕ Add Course</button>
+    <button id="updateButton" onclick="updateCourse()" style="display: none;">✅ Update Course</button>
+    <table>
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Credits</th>
+          <th>Grade</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="courseTableBody"></tbody>
+    </table>
+  </div>
+
+  <!-- CGPA Calculation -->
+  <div class="container">
+    <h2>📊 CGPA Calculation</h2>
+    <button onclick="calculateCGPA()">🔢 Calculate CGPA</button>
+    <h3 id="cgpaResult"></h3>
+  </div>
+
+  <!-- CGPA Visualization -->
+  <div class="container">
+    <h2>📈 CGPA Visualization</h2>
+    <canvas id="cgpaChart"></canvas>
+  </div>
+
+  <footer style="color: #000; text-align: center; padding: 40px 20px; font-family: 'Poppins', sans-serif; box-shadow: 0 -5px 10px rgba(0, 0, 0, 0.2);">
+    <p style="margin-top: 20px; font-size: 14px; opacity: 0.6;">© Nova</p>
+  </footer>
+
+  <!-- Font Awesome -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/js/all.min.js" crossorigin="anonymous"></script>
+
+  <script>
+    let semesters = {
+      first: [],
+      second: []
+    };
+    let selectedSemester = "first";
+    let editIndex = null;
+    let chart = null;
+
+    function changeSemester() {
+      selectedSemester = document.getElementById("semesterList").value;
+      document.getElementById("addButton").style.display = "inline-block";
+      document.getElementById("updateButton").style.display = "none";
+      updateCourseTable();
+    }
+
+    function addCourse() {
+      let name = document.getElementById("courseName").value.trim();
+      let credit = parseFloat(document.getElementById("credit").value);
+      let grade = parseFloat(document.getElementById("grade").value);
+
+      if (!name || isNaN(credit) || credit <= 0) {
+        alert("Enter valid course details.");
+        return;
+      }
+
+      semesters[selectedSemester].push({ name, credit, grade });
+      updateCourseTable();
+      clearForm();
+    }
+
+    function updateCourseTable() {
+      let tbody = document.getElementById("courseTableBody");
+      tbody.innerHTML = "";
+
+      semesters[selectedSemester].forEach((course, index) => {
+        let row = `<tr>
+          <td>${course.name}</td>
+          <td>${course.credit}</td>
+          <td>${course.grade}</td>
+          <td>
+            <button class="edit-btn" onclick="editCourse(${index})">✏ Edit</button>
+            <button class="delete-btn" onclick="removeCourse(${index})">🗑 Delete</button>
+          </td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+    }
+
+    function removeCourse(index) {
+      semesters[selectedSemester].splice(index, 1);
+      updateCourseTable();
+    }
+
+    function editCourse(index) {
+      let course = semesters[selectedSemester][index];
+      document.getElementById("courseName").value = course.name;
+      document.getElementById("credit").value = course.credit;
+      document.getElementById("grade").value = course.grade;
+      editIndex = index;
+
+      document.getElementById("addButton").style.display = "none";
+      document.getElementById("updateButton").style.display = "inline-block";
+    }
+
+    function updateCourse() {
+      if (editIndex === null) return;
+
+      let name = document.getElementById("courseName").value.trim();
+      let credit = parseFloat(document.getElementById("credit").value);
+      let grade = parseFloat(document.getElementById("grade").value);
+
+      if (!name || isNaN(credit) || credit <= 0) {
+        alert("Enter valid course details.");
+        return;
+      }
+
+      semesters[selectedSemester][editIndex] = { name, credit, grade };
+      editIndex = null;
+      updateCourseTable();
+      clearForm();
+
+      document.getElementById("addButton").style.display = "inline-block";
+      document.getElementById("updateButton").style.display = "none";
+    }
+
+    function clearForm() {
+      document.getElementById("courseName").value = "";
+      document.getElementById("credit").value = "";
+      document.getElementById("grade").value = "5";
+    }
+
+    function calculateCGPA() {
+      let courses = semesters[selectedSemester];
+      if (courses.length === 0) {
+        document.getElementById("cgpaResult").innerText = "No courses added.";
+        return;
+      }
+
+      let totalCredits = 0;
+      let totalPoints = 0;
+
+      courses.forEach(course => {
+        totalCredits += course.credit;
+        totalPoints += course.credit * course.grade;
+      });
+
+      let cgpa = totalPoints / totalCredits;
+      document.getElementById("cgpaResult").innerText = `CGPA (${selectedSemester}): ${cgpa.toFixed(2)}`;
+      updateChart(cgpa);
+    }
+
+    function updateChart(cgpa) {
+      let ctx = document.getElementById("cgpaChart").getContext("2d");
+
+      if (chart) {
+        chart.destroy(); // destroy previous chart instance to avoid overlay
+      }
+
+      chart = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["CGPA"],
+          datasets: [{
+            label: selectedSemester + " Semester",
+            data: [cgpa],
+            backgroundColor: "rgba(75, 192, 192, 0.6)"
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+              max: 5
+            }
+          }
+        }
+      });
+    }
+
+    updateCourseTable();
+  </script>
+</body>
+</html>
+
+{% endif %}
