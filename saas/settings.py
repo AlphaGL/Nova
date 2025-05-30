@@ -1,19 +1,24 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import environ
+import dj_database_url
 
 # Load environment variables from a .env file
 load_dotenv()
+env = environ.Env()
+environ.Env.read_env()
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
+
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates/')
 
 # Secret key & debug
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev-key")  # fallback for dev only
-DEBUG = True
+DEBUG = env.bool("DJANGO_DEBUG", default=False)  # Use env var for debug toggle
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
 
 # Installed apps
 INSTALLED_APPS = [
@@ -43,8 +48,7 @@ AUTH_USER_MODEL = 'users.User'
 
 # Middleware
 MIDDLEWARE = [
-    # Add the google auth account middleware:
-    "allauth.account.middleware.AccountMiddleware",
+    "allauth.account.middleware.AccountMiddleware",  # Must be before AuthenticationMiddleware
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -57,7 +61,7 @@ MIDDLEWARE = [
 # URL config
 ROOT_URLCONF = 'saas.urls'
 
-
+# Templates
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -78,17 +82,19 @@ WSGI_APPLICATION = 'saas.wsgi.application'
 
 # Authentication backends
 AUTHENTICATION_BACKENDS = [
-    'users.auth_backends.EmailBackend',
+    'users.auth_backends.EmailBackend',  # Your custom backend
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+# Allauth settings (update deprecated settings to recommended ones)
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION = True
+ACCOUNT_LOGIN_ON_GET = True
 
-# Allauth settings
-ACCOUNT_AUTHENTICATION_METHOD = 'email'
-ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_USERNAME_REQUIRED = False
+# Replace deprecated ACCOUNT_AUTHENTICATION_METHOD, ACCOUNT_EMAIL_REQUIRED, ACCOUNT_USERNAME_REQUIRED with new:
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
-
 SOCIALACCOUNT_ADAPTER = 'users.adapters.CustomSocialAccountAdapter'
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
@@ -109,13 +115,10 @@ SOCIALACCOUNT_PROVIDERS = {
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    'default': dj_database_url.parse(env('DATABASE_URL'))
 }
 
-# Password validation (optional: enable for production)
+# Password validation (enable in production)
 AUTH_PASSWORD_VALIDATORS = [
     # {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     # {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -130,10 +133,10 @@ USE_I18N = True
 USE_TZ = True
 
 # Static files
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 
 # OpenAI API Key (for future use)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Primary key field type
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
