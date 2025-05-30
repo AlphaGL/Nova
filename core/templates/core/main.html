@@ -262,10 +262,17 @@
       <p>Organize your goals, tasks, and study sessions with ease.</p>
     </a>
 
-    <a href="https://nova-akgm.onrender.com/study_tracker/semester/1/" class="card">
-      <h2>📈 CGPA Calculator</h2>
-      <p>Monitor your academic or personal learning journey over time.</p>
-    </a>
+<a href="#" id="cgpa-link" class="card">
+  <h2>📈 CGPA Calculator</h2>
+  <p>Monitor your academic or personal learning journey over time.</p>
+</a>
+
+<script>
+  const link = document.getElementById('cgpa-link');
+  // Construct the URL dynamically using current origin (protocol + domain + port)
+  link.href = window.location.origin + '/study_tracker/semester/1/';
+</script>
+
   </div>
 {% else %}
   <div class="card-container">

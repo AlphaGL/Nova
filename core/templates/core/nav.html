@@ -86,10 +86,16 @@
     <span class="emoji">🗓️</span>
     <span>Planner</span>
   </a>
-  <a href="https://nova-akgm.onrender.com/study_tracker/semester/1/" class="nav-link">
-    <span class="emoji">📈</span>
-    <span>CGPA Calculator</span>
-  </a>
+<a href="#" id="cgpa-link" class="nav-link">
+  <span class="emoji">📈</span>
+  <span>CGPA Calculator</span>
+</a>
+
+<script>
+  const link = document.getElementById('cgpa-link');
+  link.href = window.location.origin + '/study_tracker/semester/1/';
+</script>
+
 </nav>
 
 {% else %}
