@@ -15,8 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates/')
 
 # Secret key & debug
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev-key")  # fallback for dev only
-DEBUG = env.bool("DJANGO_DEBUG", default=False)  # Use env var for debug toggle
+SECRET_KEY = os.environ.get('SECRET_KEY')  # fallback for dev only
+DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["*"])
 
@@ -106,17 +106,23 @@ LOGOUT_REDIRECT_URL = 'home'
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'APP': {
-            'client_id': os.getenv("GOOGLE_CLIENT_ID"),
-            'secret': os.getenv("GOOGLE_CLIENT_SECRET"),
+            'client_id': os.environ.get("GOOGLE_CLIENT_ID"),
+            'secret': os.environ.get("GOOGLE_CLIENT_SECRET"),
             'key': ''
         }
     }
 }
 
-# Database
 DATABASES = {
-    'default': dj_database_url.parse(env('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
+
+
+database_url = os.environ.get('DATABASE_URL')
+DATABASES['default'] = dj_database_url.parse(database_url)
 
 # Password validation (enable in production)
 AUTH_PASSWORD_VALIDATORS = [
