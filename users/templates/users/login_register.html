@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static %}
+{% load socialaccount %}
 <html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
@@ -202,6 +203,8 @@ body {
 
         <button class="btn-main" type="submit">{% if page == 'login' %}Login{% else %}Register{% endif %}</button>
       </form>
+
+      <a href="{% provider_login_url 'google' %}">{% if page == 'login' %}Login with Google{% else %}Register with Google{% endif %}</a>
 
       <div class="auth__action">
         {% if page == 'login' %}
