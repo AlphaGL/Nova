@@ -79,7 +79,7 @@ def search_view(request):
                     video.save()
 
                 # Classify as short or regular
-                if video.duration and video.duration < 60:
+                if video.duration and video.duration.total_seconds() < 60:
                     shorts.append(video)
                 else:
                     regulars.append(video)
