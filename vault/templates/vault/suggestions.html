@@ -1,0 +1,9 @@
+{% extends 'vault/base.html' %}
+{% block content %}
+  <h2>Suggest a Resource</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Submit Suggestion</button>
+  </form>
+{% endblock %}

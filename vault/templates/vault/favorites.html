@@ -1,0 +1,16 @@
+{% extends 'vault/base.html' %}
+{% block content %}
+  <h2>My Favorites</h2>
+  <ul>
+  {% for fav in favorites %}
+    <li>
+      <a href="{% url 'video_detail' fav.video.id %}">{{ fav.video.title }}</a>
+      <form method="post" action="{% url 'toggle_favorite' %}" style="display:inline;">
+        {% csrf_token %}
+        <input type="hidden" name="video_id" value="{{ fav.video.id }}">
+        <button type="submit">Remove</button>
+      </form>
+    </li>
+  {% endfor %}
+  </ul>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'vault/base.html' %}
+{% block content %}
+  <h2>My Collections</h2>
+  <h3>Create New Collection</h3>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Create</button>
+  </form>
+  <h3>Existing Collections</h3>
+  <ul>
+    {% for coll in collections %}
+      <li>{{ coll.name }} ({{ coll.videos.count }} videos)</li>
+    {% endfor %}
+  </ul>
+{% endblock %}

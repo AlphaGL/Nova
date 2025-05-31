@@ -1,0 +1,50 @@
+{% extends 'vault/base.html' %}
+{% block content %}
+  <h2>All Videos</h2>
+  <form method="get" action="{% url 'search' %}">
+    <input type="text" name="q" placeholder="Search videos" value="{{ request.GET.q }}">
+    <button type="submit">Search</button>
+  </form>
+  <div class="categories">
+    <h3>Categories</h3>
+    <ul>
+      {% for cat in categories %}
+      <li><a href="{% url 'category_videos' cat.slug %}">{{ cat.name }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="video-list">
+    {% for video in videos %}
+    <div class="video-item">
+      <h4><a href="{% url 'video_detail' video.id %}">{{ video.title }}</a></h4>
+      <button class="fav-btn" data-id="{{ video.id }}">
+        {% if user.is_authenticated and video in user.favorites.all %}
+          Remove Favorite
+        {% else %}
+          Add to Favorites
+        {% endif %}
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+{% endblock %}
+{% block scripts %}
+<script>
+  // AJAX for toggling favorites without page reload
+  $(function(){
+    $('.fav-btn').click(function(){
+      var btn = $(this);
+      var videoId = btn.data('id');
+      $.post("{% url 'toggle_favorite' %}", {
+        video_id: videoId, csrfmiddlewaretoken: '{{ csrf_token }}'
+      }).done(function(data){
+        if(data.action == 'added'){
+          btn.text('Remove Favorite');
+        } else {
+          btn.text('Add to Favorites');
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

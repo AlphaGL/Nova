@@ -144,5 +144,8 @@ STATIC_URL = '/static/'
 # OpenAI API Key (for future use)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
+# Valut
+YOUTUBE_API_KEY = 'YOUTUBE_API_KEY'
+
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

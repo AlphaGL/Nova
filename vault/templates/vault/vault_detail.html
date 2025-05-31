@@ -1,0 +1,36 @@
+{% extends 'vault/base.html' %}
+{% block content %}
+  <h2>{{ video.title }}</h2>
+  <!-- YouTube embed -->
+  <iframe width="560" height="315"
+    src="https://www.youtube.com/embed/{{ video.youtube_id }}"
+    frameborder="0" allowfullscreen>
+  </iframe>
+  <p><strong>Views:</strong> {{ metadata.views }}</p>
+  <p><strong>Duration:</strong> {{ metadata.duration }}</p>
+  <p><strong>Uploader:</strong> {{ metadata.uploader }}</p>
+
+  {% if user.is_authenticated %}
+    {% if is_favorite %}
+      <form method="post" id="fav-form">
+        {% csrf_token %}
+        <input type="hidden" name="video_id" value="{{ video.id }}">
+        <button type="submit">Remove from Favorites</button>
+      </form>
+    {% else %}
+      <form method="post" id="fav-form">
+        {% csrf_token %}
+        <input type="hidden" name="video_id" value="{{ video.id }}">
+        <button type="submit">Add to Favorites</button>
+      </form>
+    {% endif %}
+    <script>
+    // AJAX toggle inside detail page (reload after toggling)
+    $('#fav-form').submit(function(e){
+      e.preventDefault();
+      $.post("{% url 'toggle_favorite' %}", $(this).serialize())
+        .done(function(data){ location.reload(); });
+    });
+    </script>
+  {% endif %}
+{% endblock %}

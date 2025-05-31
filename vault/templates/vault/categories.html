@@ -1,0 +1,9 @@
+{% extends 'vault/base.html' %}
+{% block content %}
+  <h2>Category: {{ category.name }}</h2>
+  <ul>
+  {% for video in videos %}
+    <li><a href="{% url 'video_detail' video.id %}">{{ video.title }}</a></li>
+  {% endfor %}
+  </ul>
+{% endblock %}
