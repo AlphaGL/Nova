@@ -11,7 +11,7 @@
         <div class="card-body">
           <h5 class="card-title">{{ video.title }}</h5>
           <p class="card-text">{{ video.channel_title }}<br>{{ video.published_at.date }}</p>
-          <a href="{% url 'videos:video_detail' video.youtube_id %}" class="btn btn-primary">Details</a>
+          <a href="{% url 'vault:video_detail' video.youtube_id %}" class="btn btn-primary">Details</a>
         </div>
       </div>
     </div>
