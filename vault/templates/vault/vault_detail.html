@@ -1,68 +1,19 @@
-{% extends "vault/base.html" %}
-{% load custom_filters %}
-{% load static %}
-{% block title %}{{ video.title }}{% endblock %}
+<!-- videos/templates/videos/detail.html -->
+{% extends 'vault/base.html' %}
 {% block content %}
-<div class="row">
-  <div class="col-md-4">
-    <img src="{{ video.thumbnail_url }}" class="img-fluid" alt="Thumbnail">
+  <h2>{{ video.title }}</h2>
+  <p><strong>Channel:</strong> {{ video.channel }} | <strong>Views:</strong> {{ video.views }}</p>
+  <!-- Embedded YouTube video -->
+  <div class="ratio ratio-16x9 mb-3">
+    <iframe src="https://www.youtube.com/embed/{{ video.id }}" title="YouTube video player" allowfullscreen></iframe>
   </div>
-  <div class="col-md-8">
-    <h3>{{ video.title }}</h3>
-
-    <!-- YouTube Video Player -->
-    <div class="ratio ratio-16x9 mb-3">
-      <iframe src="https://www.youtube.com/embed/{{ video.youtube_id }}"
-              title="{{ video.title }}"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-      </iframe>
-    </div>
-
-    <p>
-      Channel: {{ video.channel_title }}<br>
-      Published: {{ video.published_at.date }}<br>
-      Views: {{ video.view_count }}<br>
-      Duration: {{ video.duration }}
-    </p>
-
-    <!-- Favorite button -->
-    {% if user.is_authenticated %}
-      {% if is_favorited %}
-        <a href="{% url 'vault:toggle_favorite' video.id %}" class="btn btn-warning">Unfavorite</a>
-      {% else %}
-        <a href="{% url 'vault:toggle_favorite' video.id %}" class="btn btn-outline-warning">Favorite</a>
-      {% endif %}
-    {% endif %}
-
-    <!-- Tags -->
-    <p>Tags: 
-      {% for tag in tags %}<span class="badge bg-info">{{ tag.name }}</span> {% endfor %}
-    </p>
-
-    <!-- Rating -->
-    <p>Average Rating: {{ avg_rating|default:'N/A' }}</p>
-    {% if user.is_authenticated %}
-      <form method="post" action="{% url 'vault:add_rating' %}">
-        {% csrf_token %}
-        <input type="hidden" name="video_id" value="{{ video.id }}">
-        <label for="score">Your rating:</label>
-        <select name="score" onchange="this.form.submit()">
-          <option value="">--</option>
-          {% for i in 5|to_range %}
-              <option value="{{ i }}" {% if user_rating == i %}selected{% endif %}>
-                  {{ i }} Star{% if i > 1 %}s{% endif %}
-              </option>
-          {% endfor %}
-        </select>
-      </form>
-    {% endif %}
-
-    <!-- Suggestions and Collections links -->
-    {% if user.is_authenticated %}
-      <a href="{% url 'vault:create_collection' %}" class="btn btn-primary mt-2">Create Collection</a>
-    {% endif %}
-  </div>
-</div>
+  <p>{{ video.description }}</p>
+  <!-- Download and Share buttons -->
+  <a href="{% url 'vault:download_video' video.id %}" class="btn btn-success mb-3">Download Video</a>
+  <h4>Share this video:</h4>
+  <a href="https://www.facebook.com/sharer/sharer.php?u={{ video.url|urlencode }}" 
+     target="_blank" class="btn btn-primary me-2">Facebook</a>
+  <a href="https://twitter.com/intent/tweet?url={{ video.url|urlencode }}&text={{ video.title|urlencode }}" 
+     target="_blank" class="btn btn-info">Twitter</a>
+  <p class="mt-4"><a href="{% url 'vault:search' %}" class="btn btn-secondary">Back to Search</a></p>
 {% endblock %}

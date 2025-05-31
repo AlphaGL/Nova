@@ -8,6 +8,7 @@ urlpatterns = [
     path('', views.HomePageView.as_view(), name='vault'),
     path('nova/', views.search_view, name='search'),                # Search page (home)
     path('video/<str:yt_id>/', views.video_detail, name='video_detail'),
+    path('download/<str:yt_id>/', views.download_video, name='download_video'),
     path('favorite/<int:video_id>/', views.toggle_favorite, name='toggle_favorite'),
     path('collections/', views.collections_list, name='collections_list'),
     path('collections/create/', views.create_collection, name='create_collection'),

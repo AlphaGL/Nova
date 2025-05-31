@@ -11,6 +11,15 @@ from .models import Video, Collection, Suggestion, Tag, Rating
 from .forms import SuggestionForm, CollectionForm
 from django.utils.dateparse import parse_duration
 from django.db import models
+from django.core.paginator import Paginator
+from isodate import parse_duration as iso_to_duration  # For parsing ISO 8601 durations
+
+
+from django.http import HttpResponse, FileResponse
+from django.db import models
+from isodate import parse_duration as iso_to_duration
+from yt_dlp import YoutubeDL
+import os
 
 
 YOUTUBE_API_KEY = settings.YOUTUBE_API_KEY
@@ -21,15 +30,19 @@ class HomePageView(TemplateView):
 
 def search_view(request):
     query = request.GET.get('q', '')
-    videos = []
+    all_videos = []  # Combine shorts and regulars for pagination
+    shorts = []
+    regulars = []
+
     if query:
-        youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)  # Google API client
+        youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)
         search_request = youtube.search().list(
             part='id,snippet',
             q=query,
             type='video',
             maxResults=50
         )
+
         total_fetched = 0
         while search_request and total_fetched < 150:
             response = search_request.execute()
@@ -39,7 +52,8 @@ def search_view(request):
                     break
                 video_id = item['id']['videoId']
                 snippet = item['snippet']
-                # Fetch or create Video in DB
+
+                # Fetch or create the video
                 video, created = Video.objects.get_or_create(youtube_id=video_id)
                 if created:
                     video.title = snippet['title']
@@ -47,17 +61,29 @@ def search_view(request):
                     video.channel_title = snippet.get('channelTitle', '')
                     video.published_at = snippet.get('publishedAt')
                     video.thumbnail_url = snippet['thumbnails']['default']['url']
-                    # Fetch additional details (views, duration)
-                    detail = youtube.videos().list(part='contentDetails,statistics', id=video_id).execute()
+
+                    # Fetch duration and stats
+                    detail = youtube.videos().list(
+                        part='contentDetails,statistics', id=video_id
+                    ).execute()
+
                     if detail['items']:
-                        stats = detail['items'][0]['statistics']
+                        stats = detail['items'][0].get('statistics', {})
                         video.view_count = stats.get('viewCount', 0)
-                        duration = detail['items'][0]['contentDetails']['duration']
-                        # Convert ISO 8601 duration to Python timedelta (omitted for brevity)
-                        video.duration = parse_duration(duration)
+
+                        # Parse ISO 8601 duration
+                        duration_iso = detail['items'][0]['contentDetails']['duration']
+                        duration_td = iso_to_duration(duration_iso)
+                        video.duration = duration_td.total_seconds()
+
                     video.save()
-                videos.append(video)
-            # Get next page token
+
+                # Classify as short or regular
+                if video.duration and video.duration < 60:
+                    shorts.append(video)
+                else:
+                    regulars.append(video)
+
             search_request = youtube.search().list(
                 part='id,snippet',
                 q=query,
@@ -66,25 +92,40 @@ def search_view(request):
                 pageToken=response.get('nextPageToken')
             ) if response.get('nextPageToken') else None
 
-        # Paginate results (50 per page)
-        paginator = Paginator(videos, 50)
+        # Combine for pagination, or keep separate if needed
+        all_videos = shorts + regulars
+
+        # Paginate all_videos (can be just regulars if you want)
+        paginator = Paginator(all_videos, 50)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
-        return render(request, 'vault/search_results.html', {'page_obj': page_obj, 'query': query})
+
+        return render(request, 'vault/search_results.html', {
+            'page_obj': page_obj,
+            'query': query,
+            'shorts': shorts,
+            'regulars': regulars,
+        })
+
     return render(request, 'vault/search_results.html', {})
 
 def video_detail(request, yt_id):
+    """Display detailed info for a single video from DB, allow rating, tagging, etc."""
     video = get_object_or_404(Video, youtube_id=yt_id)
+
     is_favorited = False
     user_rating = None
+
     if request.user.is_authenticated:
         is_favorited = video in request.user.favorite_videos.all()
         try:
             user_rating = Rating.objects.get(user=request.user, video=video).score
         except Rating.DoesNotExist:
             user_rating = None
+
     avg_rating = video.ratings.aggregate(models.Avg('score'))['score__avg']
     tags = video.tags.all()
+
     return render(request, 'vault/vault_detail.html', {
         'video': video,
         'is_favorited': is_favorited,
@@ -92,6 +133,35 @@ def video_detail(request, yt_id):
         'user_rating': user_rating,
         'tags': tags,
     })
+
+def download_video(request, video_id):
+    """
+    Download the YouTube video with yt_dlp and stream it as a file response.
+    Deletes the file after sending it.
+    """
+    url = f'https://www.youtube.com/watch?v={video_id}'
+    ydl_opts = {
+        'outtmpl': os.path.join(settings.MEDIA_ROOT, '%(id)s.%(ext)s'),
+        'format': 'best[ext=mp4]/best',  # prioritize mp4 if available
+        'quiet': True
+    }
+
+    try:
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info)
+
+        if os.path.exists(filename):
+            response = FileResponse(open(filename, 'rb'), as_attachment=True, filename=os.path.basename(filename))
+            try:
+                os.remove(filename)
+            except OSError:
+                pass
+            return response
+        else:
+            return HttpResponse("Failed to download video file.", status=500)
+    except Exception as e:
+        return HttpResponse(f"Error during download: {e}", status=500)
 
 @login_required
 def toggle_favorite(request, video_id):

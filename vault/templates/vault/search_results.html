@@ -1,47 +1,44 @@
-{% extends "vault/base.html" %}
-{% block title %}Search{% endblock %}
+{% extends 'vault/base.html' %}
 {% block content %}
-<h2>Search Results{% if query %} for "{{ query }}"{% endif %}</h2>
-{% if page_obj %}
-  <div class="row">
-  {% for video in page_obj.object_list %}
-    <div class="col-md-4 mb-3">
-      <div class="card">
-        <img src="{{ video.thumbnail_url }}" class="card-img-top" alt="Thumbnail">
-        <div class="card-body">
-          <h5 class="card-title">{{ video.title }}</h5>
-          <p class="card-text">{{ video.channel_title }}<br>{{ video.published_at.date }}</p>
-          <a href="{% url 'vault:video_detail' video.youtube_id %}" class="btn btn-primary">Details</a>
+  <h2>Results for "{{ query }}"</h2>
+  <!-- Recent Searches -->
+  <div id="recent-searches" class="mt-3"></div>
+
+  {% if shorts %}
+    <h3 class="mt-4">Shorts</h3>
+    <div class="row">
+      {% for video in shorts %}
+        <div class="col-md-3 mb-4">
+          <div class="card h-100">
+            <img src="{{ video.thumbnail }}" class="card-img-top" alt="Thumbnail">
+            <div class="card-body">
+              <h5 class="card-title">{{ video.title|truncatechars:50 }}</h5>
+              <p class="card-text">Duration: {{ video.duration_str }}</p>
+              <p class="card-text">{{ video.description|truncatechars:80 }}</p>
+              <a href="{% url 'vault:video_detail' video.id %}" class="btn btn-primary">Details</a>
+            </div>
+          </div>
         </div>
-      </div>
+      {% endfor %}
     </div>
-  {% endfor %}
-  </div>
-  <!-- Pagination links -->
-  <nav aria-label="Search results pages">
-    <ul class="pagination">
-      {% if page_obj.has_previous %}
-        <li class="page-item">
-          <a class="page-link" href="?q={{ query }}&page=1">&laquo; First</a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="?q={{ query }}&page={{ page_obj.previous_page_number }}">Previous</a>
-        </li>
-      {% endif %}
-      <li class="page-item disabled"><span class="page-link">
-        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-      </span></li>
-      {% if page_obj.has_next %}
-        <li class="page-item">
-          <a class="page-link" href="?q={{ query }}&page={{ page_obj.next_page_number }}">Next</a>
-        </li>
-        <li class="page-item">
-          <a class="page-link" href="?q={{ query }}&page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
-        </li>
-      {% endif %}
-    </ul>
-  </nav>
-{% else %}
-  <p>No results yet. Enter a search above.</p>
-{% endif %}
+  {% endif %}
+
+  {% if videos %}
+    <h3 class="mt-4">Videos</h3>
+    <div class="row">
+      {% for video in videos %}
+        <div class="col-md-3 mb-4">
+          <div class="card h-100">
+            <img src="{{ video.thumbnail }}" class="card-img-top" alt="Thumbnail">
+            <div class="card-body">
+              <h5 class="card-title">{{ video.title|truncatechars:50 }}</h5>
+              <p class="card-text">Duration: {{ video.duration_str }}</p>
+              <p class="card-text">{{ video.description|truncatechars:80 }}</p>
+              <a href="{% url 'vault:video_detail' video.id %}" class="btn btn-primary">Details</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
 {% endblock %}

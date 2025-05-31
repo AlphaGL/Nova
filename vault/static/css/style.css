@@ -1,0 +1,26 @@
+/* static/css/style.css */
+
+/* Ensure body content is not hidden under the fixed navbar */
+body {
+    padding-top: 70px;
+}
+
+/* Style for card text */
+.card-text {
+    font-size: 0.9rem;
+}
+
+/* Recent searches list styling */
+#recent-searches ul {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+#recent-searches ul li a {
+    text-decoration: none;
+    color: #0d6efd;
+}
+
+#recent-searches ul li a:hover {
+    text-decoration: underline;
+}
