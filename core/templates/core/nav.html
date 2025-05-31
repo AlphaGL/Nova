@@ -78,10 +78,17 @@
     <span class="emoji">🏠</span>
     <span>Home</span>
   </a>
-  <a href="{% url 'search' %}" class="nav-link">
+
+  <a href="#" id="vault-search" class="nav-link">
     <span class="emoji">📺</span>
     <span>Vault</span>
   </a>
+
+  <script>
+    const link = document.getElementById('vault-search');
+    link.href = window.location.origin + '/vault/ ';
+  </script>
+
   <a href="{% url 'task_list' %}" class="nav-link">
     <span class="emoji">🗓️</span>
     <span>Planner</span>
@@ -105,13 +112,13 @@
     <span>Home</span>
   </a>
 
-  <a href="#" id="vault-link" class="nav-link">
+  <a href="#" id="vault" class="nav-link">
     <span class="emoji">📺</span>
     <span>Vault</span>
   </a>
 
 <script>
-  const link = document.getElementById('vault-link');
+  const link = document.getElementById('vault');
   link.href = window.location.origin + '/vault/ ';
 </script>
 
