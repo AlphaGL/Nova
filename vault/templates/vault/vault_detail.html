@@ -1,4 +1,6 @@
 {% extends "vault/base.html" %}
+{% load custom_filters %}
+{% load static %}
 {% block title %}{{ video.title }}{% endblock %}
 {% block content %}
 <div class="row">
@@ -29,8 +31,10 @@
         <label for="score">Your rating:</label>
         <select name="score" onchange="this.form.submit()">
           <option value="">--</option>
-          {% for i in 1|to_int:5 %}
-            <option value="{{ i }}" {% if user_rating == i %}selected{% endif %}>{{ i }} Star{% if i>1 %}s{% endif %}</option>
+          {% for i in 5|to_range %}
+              <option value="{{ i }}" {% if user_rating == i %}selected{% endif %}>
+                  {{ i }} Star{% if i > 1 %}s{% endif %}
+              </option>
           {% endfor %}
         </select>
       </form>
