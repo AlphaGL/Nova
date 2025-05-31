@@ -26,7 +26,7 @@ def home(request):
     else:
         videos = Video.objects.all()
     categories = Category.objects.all()
-    return render(request, 'videos/home.html', {
+    return render(request, 'vault/home.html', {
         'videos': videos, 'categories': categories
     })
 
@@ -56,7 +56,7 @@ def video_detail(request, video_id):
     is_fav = False
     if request.user.is_authenticated:
         is_fav = Favorite.objects.filter(user=request.user, video=video).exists()
-    return render(request, 'videos/video_detail.html', {
+    return render(request, 'vault/video_detail.html', {
         'video': video, 'metadata': metadata, 'is_favorite': is_fav
     })
 
@@ -66,7 +66,7 @@ def category_videos(request, slug):
     """
     category = get_object_or_404(Category, slug=slug)
     videos = category.videos.all()
-    return render(request, 'videos/categories.html', {
+    return render(request, 'vault/categories.html', {
         'category': category, 'videos': videos
     })
 
@@ -76,7 +76,7 @@ def favorites(request):
     Displays the logged-in user’s favorite videos.
     """
     favs = Favorite.objects.filter(user=request.user).select_related('video')
-    return render(request, 'videos/favorites.html', {'favorites': favs})
+    return render(request, 'vault/favorites.html', {'favorites': favs})
 
 @login_required
 def toggle_favorite(request):
@@ -112,7 +112,7 @@ def collections(request):
     else:
         form = CollectionForm()
     user_collections = Collection.objects.filter(user=request.user)
-    return render(request, 'videos/collections.html', {
+    return render(request, 'vault/collections.html', {
         'collections': user_collections, 'form': form
     })
 
@@ -130,4 +130,4 @@ def suggestions(request):
             return redirect('home')
     else:
         form = SuggestionForm()
-    return render(request, 'videos/suggestions.html', {'form': form})
+    return render(request, 'vault/suggestions.html', {'form': form})
