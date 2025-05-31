@@ -11,9 +11,9 @@
     <!-- Favorite button -->
     {% if user.is_authenticated %}
       {% if is_favorited %}
-        <a href="{% url 'videos:toggle_favorite' video.id %}" class="btn btn-warning">Unfavorite</a>
+        <a href="{% url 'vault:toggle_favorite' video.id %}" class="btn btn-warning">Unfavorite</a>
       {% else %}
-        <a href="{% url 'videos:toggle_favorite' video.id %}" class="btn btn-outline-warning">Favorite</a>
+        <a href="{% url 'vault:toggle_favorite' video.id %}" class="btn btn-outline-warning">Favorite</a>
       {% endif %}
     {% endif %}
     <!-- Tags -->
@@ -23,7 +23,7 @@
     <!-- Rating -->
     <p>Average Rating: {{ avg_rating|default:'N/A' }}</p>
     {% if user.is_authenticated %}
-      <form method="post" action="{% url 'videos:add_rating' %}">
+      <form method="post" action="{% url 'vault:add_rating' %}">
         {% csrf_token %}
         <input type="hidden" name="video_id" value="{{ video.id }}">
         <label for="score">Your rating:</label>
@@ -37,7 +37,7 @@
     {% endif %}
     <!-- Suggestions and Collections links -->
     {% if user.is_authenticated %}
-      <a href="{% url 'videos:create_collection' %}" class="btn btn-primary mt-2">Create Collection</a>
+      <a href="{% url 'vault:create_collection' %}" class="btn btn-primary mt-2">Create Collection</a>
     {% endif %}
   </div>
 </div>
