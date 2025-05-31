@@ -276,10 +276,17 @@
   </div>
 {% else %}
   <div class="card-container">
-    <a href="{% url 'vault' %}" class="card">
+
+    <a href="#" id="vault" class="card">
       <h2>📺 Vault</h2>
       <p>Curated smart search for the best learning resources and videos.</p>
     </a>
+
+<script>
+  const link = document.getElementById('vault');
+  // Construct the URL dynamically using current origin (protocol + domain + port)
+  link.href = window.location.origin + '/vault/';
+</script>
 
     <a href="{% url 'login' %}" class="card">
       <h2>📅 Planner</h2>

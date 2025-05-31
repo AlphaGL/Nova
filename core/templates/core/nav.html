@@ -104,10 +104,18 @@
     <span class="emoji">🏠</span>
     <span>Home</span>
   </a>
-  <a href="{% url 'vault' %}" class="nav-link">
+
+  <a href="#" id="vault-link" class="nav-link">
     <span class="emoji">📺</span>
     <span>Vault</span>
   </a>
+
+<script>
+  const link = document.getElementById('vault-link');
+  link.href = window.location.origin + '/vault/ ';
+</script>
+
+
   <a href="{% url 'login' %}" class="nav-link">
     <span class="emoji">🗓️</span>
     <span>Planner</span>
