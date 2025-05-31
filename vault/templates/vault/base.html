@@ -3,22 +3,229 @@
 <html>
 <head>
   <title>{% block title %}EduVideos{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'videos/css/style.css' %}">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   {% block head %}{% endblock %}
 </head>
+  <style>
+    :root {
+      --primary-blue: #0052cc;
+      --accent-blue: #007bff;
+      --bg-white: #ffffff;
+      --bg-dark: #121212;
+      --text-dark: #222;
+      --text-light: #f5f5f5;
+      --input-bg-light: #f0f4ff;
+      --input-bg-dark: #1e1e1e;
+      --input-border-light: #a6c8ff;
+      --input-border-dark: #444;
+      --card-bg-light: #f9fbff;
+      --card-bg-dark: #1e1e1e;
+      --card-shadow: rgba(0, 82, 204, 0.15);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background-color: var(--bg-white);
+      color: var(--text-dark);
+      transition: all 0.3s ease;
+      min-height: 100vh;
+      padding: 40px 20px 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    body.dark-mode {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      color: var(--primary-blue);
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .description {
+      text-align: center;
+      max-width: 600px;
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+      color: inherit;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 25px;
+    }
+
+    .controls > * {
+      font-size: 1rem;
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .theme-toggle {
+      background: var(--accent-blue);
+      color: white;
+    }
+
+    .bg-picker {
+      padding: 6px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      cursor: pointer;
+      width: 40px;
+      height: 40px;
+      vertical-align: middle;
+    }
+
+    .search-bar {
+      display: flex;
+      max-width: 600px;
+      width: 100%;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 14px;
+      border: 2px solid var(--input-border-light);
+      background: var(--input-bg-light);
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+
+    body.dark-mode .search-bar input {
+      background: var(--input-bg-dark);
+      border-color: var(--input-border-dark);
+      color: white;
+    }
+
+    .search-bar button {
+      background-color: var(--primary-blue);
+      color: white;
+      padding: 14px 25px;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .search-bar button:hover {
+      background-color: var(--accent-blue);
+    }
+
+    #results {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
+      max-width: 1000px;
+      width: 100%;
+    }
+
+    .video-card {
+      background: var(--card-bg-light);
+      border-radius: 12px;
+      box-shadow: 0 8px 16px var(--card-shadow);
+      overflow: hidden;
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+    }
+
+    .video-card:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
+    }
+
+    body.dark-mode .video-card {
+      background: var(--card-bg-dark);
+    }
+
+    .video-card img {
+      width: 100%;
+      height: auto;
+    }
+
+    .content {
+      padding: 14px;
+    }
+
+    .title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--primary-blue);
+    }
+
+    .meta {
+      font-size: 0.85rem;
+      color: #777;
+      margin-top: 4px;
+    }
+
+    body.dark-mode .meta {
+      color: #ccc;
+    }
+
+    #player-container {
+      max-width: 900px;
+      width: 100%;
+      background: var(--card-bg-light);
+      border-radius: 15px;
+      padding: 10px;
+      box-shadow: 0 10px 25px var(--card-shadow);
+      margin-top: 30px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    body.dark-mode #player-container {
+      background: var(--card-bg-dark);
+    }
+
+    #player-container iframe {
+      width: 100%;
+      height: 500px;
+      border: none;
+      border-radius: 12px;
+    }
+
+    #player-title {
+      margin: 15px 0;
+      font-size: 1.25rem;
+      font-weight: bold;
+      color: var(--primary-blue);
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      #player-container iframe {
+        height: 280px;
+      }
+    }
+  </style>
 <body>
   <header>
-    <h1><a href="{% url 'home' %}">EduVideo Platform</a></h1>
+    <h1><a href="{% url 'home' %}">Nova Vault</a></h1>
     <nav>
       {% if user.is_authenticated %}
         <a href="{% url 'favorites' %}">Favorites</a>
         <a href="{% url 'collections' %}">My Collections</a>
         <a href="{% url 'suggestions' %}">Suggest</a>
         <a href="{% url 'logout' %}">Logout</a>
-      {% else %}
-        <a href="{% url 'signup' %}">Sign Up</a>
-        <a href="{% url 'login' %}">Login</a>
       {% endif %}
       <a href="{% url 'suggestions' %}">Suggest Resource</a>
     </nav>
@@ -27,7 +234,7 @@
     {% block content %}{% endblock %}
   </div>
   <footer>
-    <p>&copy; EduVideo Platform</p>
+    <p>&copy; Nova Vault</p>
   </footer>
   {% block scripts %}{% endblock %}
 </body>
