@@ -9,7 +9,24 @@
   </div>
   <div class="col-md-8">
     <h3>{{ video.title }}</h3>
-    <p>Channel: {{ video.channel_title }}<br>Published: {{ video.published_at.date }}<br>Views: {{ video.view_count }}<br>Duration: {{ video.duration }}</p>
+
+    <!-- YouTube Video Player -->
+    <div class="ratio ratio-16x9 mb-3">
+      <iframe src="https://www.youtube.com/embed/{{ video.youtube_id }}"
+              title="{{ video.title }}"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen>
+      </iframe>
+    </div>
+
+    <p>
+      Channel: {{ video.channel_title }}<br>
+      Published: {{ video.published_at.date }}<br>
+      Views: {{ video.view_count }}<br>
+      Duration: {{ video.duration }}
+    </p>
+
     <!-- Favorite button -->
     {% if user.is_authenticated %}
       {% if is_favorited %}
@@ -18,10 +35,12 @@
         <a href="{% url 'vault:toggle_favorite' video.id %}" class="btn btn-outline-warning">Favorite</a>
       {% endif %}
     {% endif %}
+
     <!-- Tags -->
     <p>Tags: 
       {% for tag in tags %}<span class="badge bg-info">{{ tag.name }}</span> {% endfor %}
     </p>
+
     <!-- Rating -->
     <p>Average Rating: {{ avg_rating|default:'N/A' }}</p>
     {% if user.is_authenticated %}
@@ -39,6 +58,7 @@
         </select>
       </form>
     {% endif %}
+
     <!-- Suggestions and Collections links -->
     {% if user.is_authenticated %}
       <a href="{% url 'vault:create_collection' %}" class="btn btn-primary mt-2">Create Collection</a>
