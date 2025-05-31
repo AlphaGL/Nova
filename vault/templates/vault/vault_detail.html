@@ -1,36 +1,44 @@
-{% extends 'vault/base.html' %}
+{% extends "vault/base.html" %}
+{% block title %}{{ video.title }}{% endblock %}
 {% block content %}
-  <h2>{{ video.title }}</h2>
-  <!-- YouTube embed -->
-  <iframe width="560" height="315"
-    src="https://www.youtube.com/embed/{{ video.youtube_id }}"
-    frameborder="0" allowfullscreen>
-  </iframe>
-  <p><strong>Views:</strong> {{ metadata.views }}</p>
-  <p><strong>Duration:</strong> {{ metadata.duration }}</p>
-  <p><strong>Uploader:</strong> {{ metadata.uploader }}</p>
-
-  {% if user.is_authenticated %}
-    {% if is_favorite %}
-      <form method="post" id="fav-form">
+<div class="row">
+  <div class="col-md-4">
+    <img src="{{ video.thumbnail_url }}" class="img-fluid" alt="Thumbnail">
+  </div>
+  <div class="col-md-8">
+    <h3>{{ video.title }}</h3>
+    <p>Channel: {{ video.channel_title }}<br>Published: {{ video.published_at.date }}<br>Views: {{ video.view_count }}<br>Duration: {{ video.duration }}</p>
+    <!-- Favorite button -->
+    {% if user.is_authenticated %}
+      {% if is_favorited %}
+        <a href="{% url 'videos:toggle_favorite' video.id %}" class="btn btn-warning">Unfavorite</a>
+      {% else %}
+        <a href="{% url 'videos:toggle_favorite' video.id %}" class="btn btn-outline-warning">Favorite</a>
+      {% endif %}
+    {% endif %}
+    <!-- Tags -->
+    <p>Tags: 
+      {% for tag in tags %}<span class="badge bg-info">{{ tag.name }}</span> {% endfor %}
+    </p>
+    <!-- Rating -->
+    <p>Average Rating: {{ avg_rating|default:'N/A' }}</p>
+    {% if user.is_authenticated %}
+      <form method="post" action="{% url 'videos:add_rating' %}">
         {% csrf_token %}
         <input type="hidden" name="video_id" value="{{ video.id }}">
-        <button type="submit">Remove from Favorites</button>
-      </form>
-    {% else %}
-      <form method="post" id="fav-form">
-        {% csrf_token %}
-        <input type="hidden" name="video_id" value="{{ video.id }}">
-        <button type="submit">Add to Favorites</button>
+        <label for="score">Your rating:</label>
+        <select name="score" onchange="this.form.submit()">
+          <option value="">--</option>
+          {% for i in 1|to_int:5 %}
+            <option value="{{ i }}" {% if user_rating == i %}selected{% endif %}>{{ i }} Star{% if i>1 %}s{% endif %}</option>
+          {% endfor %}
+        </select>
       </form>
     {% endif %}
-    <script>
-    // AJAX toggle inside detail page (reload after toggling)
-    $('#fav-form').submit(function(e){
-      e.preventDefault();
-      $.post("{% url 'toggle_favorite' %}", $(this).serialize())
-        .done(function(data){ location.reload(); });
-    });
-    </script>
-  {% endif %}
+    <!-- Suggestions and Collections links -->
+    {% if user.is_authenticated %}
+      <a href="{% url 'videos:create_collection' %}" class="btn btn-primary mt-2">Create Collection</a>
+    {% endif %}
+  </div>
+</div>
 {% endblock %}

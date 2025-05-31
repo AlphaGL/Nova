@@ -149,3 +149,9 @@ YOUTUBE_API_KEY = 'YOUTUBE_API_KEY'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# Email settings for notifications (example with console)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'ichukwugozirim@gmail.com'
+ADMINS = [('Admin', 'ichukwugozirim@gmail.com')]

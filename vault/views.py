@@ -1,125 +1,141 @@
-from django.shortcuts import render,redirect, get_object_or_404
+# vaults/views.py
 from django.views.generic import TemplateView
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login
-from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.decorators import login_required
-from .models import Video, Category, Favorite, Collection, Suggestion
-from .forms import SuggestionForm, CollectionForm, SignUpForm
-from django.http import JsonResponse
+from django.core.paginator import Paginator
+from django.core.mail import send_mail
 from django.conf import settings
-import requests
+from googleapiclient.discovery import build
+from .models import Video, Collection, Suggestion, Tag, Rating
+from .forms import SuggestionForm, CollectionForm
+from django.utils.dateparse import parse_duration
+from django.db import models
 
 
-# Create your views here.
+YOUTUBE_API_KEY = settings.YOUTUBE_API_KEY
+
 
 class HomePageView(TemplateView):
     template_name = 'vault/index.html'
 
-
-def home(request):
-    """
-    Home/search view: lists videos (filtered by search query if given) and shows categories.
-    """
-    query = request.GET.get('q')
+def search_view(request):
+    query = request.GET.get('q', '')
+    videos = []
     if query:
-        videos = Video.objects.filter(title__icontains=query)
-    else:
-        videos = Video.objects.all()
-    categories = Category.objects.all()
-    return render(request, 'vault/home.html', {
-        'videos': videos, 'categories': categories
-    })
+        youtube = build('youtube', 'v3', developerKey=YOUTUBE_API_KEY)  # Google API client
+        search_request = youtube.search().list(
+            part='id,snippet',
+            q=query,
+            type='video',
+            maxResults=50
+        )
+        total_fetched = 0
+        while search_request and total_fetched < 150:
+            response = search_request.execute()
+            for item in response.get('items', []):
+                total_fetched += 1
+                if total_fetched > 150:
+                    break
+                video_id = item['id']['videoId']
+                snippet = item['snippet']
+                # Fetch or create Video in DB
+                video, created = Video.objects.get_or_create(youtube_id=video_id)
+                if created:
+                    video.title = snippet['title']
+                    video.description = snippet.get('description', '')
+                    video.channel_title = snippet.get('channelTitle', '')
+                    video.published_at = snippet.get('publishedAt')
+                    video.thumbnail_url = snippet['thumbnails']['default']['url']
+                    # Fetch additional details (views, duration)
+                    detail = youtube.videos().list(part='contentDetails,statistics', id=video_id).execute()
+                    if detail['items']:
+                        stats = detail['items'][0]['statistics']
+                        video.view_count = stats.get('viewCount', 0)
+                        duration = detail['items'][0]['contentDetails']['duration']
+                        # Convert ISO 8601 duration to Python timedelta (omitted for brevity)
+                        video.duration = parse_duration(duration)
+                    video.save()
+                videos.append(video)
+            # Get next page token
+            search_request = youtube.search().list(
+                part='id,snippet',
+                q=query,
+                type='video',
+                maxResults=50,
+                pageToken=response.get('nextPageToken')
+            ) if response.get('nextPageToken') else None
 
-def video_detail(request, video_id):
-    """
-    Video detail page: displays embedded YouTube player and metadata (views, duration, uploader).
-    Metadata is fetched via the YouTube Data API.
-    """
-    video = get_object_or_404(Video, id=video_id)
-    youtube_api_key = settings.YOUTUBE_API_KEY  # (Define this in settings or env)
-    api_url = (
-        f"https://www.googleapis.com/youtube/v3/videos"
-        f"?part=statistics,contentDetails,snippet"
-        f"&id={video.youtube_id}&key={youtube_api_key}"
-    )
-    resp = requests.get(api_url)
-    data = resp.json().get('items', [])
-    metadata = {}
-    if data:
-        item = data[0]
-        metadata = {
-            'views': item['statistics'].get('viewCount'),
-            'duration': item['contentDetails'].get('duration'),
-            'uploader': item['snippet'].get('channelTitle'),
-        }
-    # Check if user has favorited this video
-    is_fav = False
+        # Paginate results (50 per page)
+        paginator = Paginator(videos, 50)
+        page_number = request.GET.get('page')
+        page_obj = paginator.get_page(page_number)
+        return render(request, 'vault/search_results.html', {'page_obj': page_obj, 'query': query})
+    return render(request, 'vault/search_results.html', {})
+
+def video_detail(request, yt_id):
+    video = get_object_or_404(Video, youtube_id=yt_id)
+    is_favorited = False
+    user_rating = None
     if request.user.is_authenticated:
-        is_fav = Favorite.objects.filter(user=request.user, video=video).exists()
-    return render(request, 'vault/video_detail.html', {
-        'video': video, 'metadata': metadata, 'is_favorite': is_fav
+        is_favorited = video in request.user.favorite_videos.all()
+        try:
+            user_rating = Rating.objects.get(user=request.user, video=video).score
+        except Rating.DoesNotExist:
+            user_rating = None
+    avg_rating = video.ratings.aggregate(models.Avg('score'))['score__avg']
+    tags = video.tags.all()
+    return render(request, 'vault/vault_detail.html', {
+        'video': video,
+        'is_favorited': is_favorited,
+        'avg_rating': avg_rating,
+        'user_rating': user_rating,
+        'tags': tags,
     })
 
-def category_videos(request, slug):
-    """
-    Lists videos belonging to a given category.
-    """
-    category = get_object_or_404(Category, slug=slug)
-    videos = category.videos.all()
-    return render(request, 'vault/categories.html', {
-        'category': category, 'videos': videos
-    })
+@login_required
+def toggle_favorite(request, video_id):
+    video = get_object_or_404(Video, pk=video_id)
+    if video in request.user.favorite_videos.all():
+        request.user.favorite_videos.remove(video)
+    else:
+        request.user.favorite_videos.add(video)
+    return redirect('vault:video_detail', yt_id=video.youtube_id)
 
 @login_required
-def favorites(request):
-    """
-    Displays the logged-in user’s favorite videos.
-    """
-    favs = Favorite.objects.filter(user=request.user).select_related('video')
-    return render(request, 'vault/favorites.html', {'favorites': favs})
+def collections_list(request):
+    collections = request.user.collections.all()
+    return render(request, 'vault/collections.html', {'collections': collections})
 
 @login_required
-def toggle_favorite(request):
-    """
-    AJAX endpoint to add/remove a favorite. Expects POST with 'video_id'.
-    Returns JSON with action status.
-    """
-    if request.method == 'POST':
-        video_id = request.POST.get('video_id')
-        video = get_object_or_404(Video, id=video_id)
-        fav, created = Favorite.objects.get_or_create(user=request.user, video=video)
-        if not created:
-            fav.delete()
-            action = 'removed'
-        else:
-            action = 'added'
-        return JsonResponse({'status': 'ok', 'action': action})
-    return JsonResponse({'status': 'invalid'}, status=400)
-
-@login_required
-def collections(request):
-    """
-    Create new collection and list existing collections for the user.
-    """
+def create_collection(request):
     if request.method == 'POST':
         form = CollectionForm(request.POST)
         if form.is_valid():
-            coll = form.save(commit=False)
-            coll.user = request.user
-            coll.save()
-            form.save_m2m()
-            return redirect('collections')
+            collection = form.save(commit=False)
+            collection.owner = request.user
+            collection.save()
+            # Optional email notification to admins
+            send_mail(
+                subject="New collection created",
+                message=f"User {request.user.username} created collection '{collection.name}'",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email for _, email in settings.ADMINS]
+            )
+            return redirect('vault:collections_list')
     else:
         form = CollectionForm()
-    user_collections = Collection.objects.filter(user=request.user)
-    return render(request, 'vault/collections.html', {
-        'collections': user_collections, 'form': form
-    })
+    return render(request, 'vault/collection_form.html', {'form': form})
 
-def suggestions(request):
-    """
-    Resource suggestion form. Anyone can submit.
-    """
+@login_required
+def add_to_collection(request, collection_id):
+    collection = get_object_or_404(Collection, pk=collection_id, owner=request.user)
+    video_id = request.GET.get('video_id')
+    video = get_object_or_404(Video, pk=video_id)
+    collection.videos.add(video)
+    return redirect('vault:video_detail', yt_id=video.youtube_id)
+
+def suggestion_view(request):
     if request.method == 'POST':
         form = SuggestionForm(request.POST)
         if form.is_valid():
@@ -127,7 +143,31 @@ def suggestions(request):
             if request.user.is_authenticated:
                 suggestion.user = request.user
             suggestion.save()
-            return redirect('home')
+            # Email admins about suggestion
+            send_mail(
+                subject="New suggestion submitted",
+                message=f"Title: {suggestion.title}\nURL: {suggestion.url}",
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[email for _, email in settings.ADMINS]
+            )
+            return redirect('vault:search')
     else:
         form = SuggestionForm()
-    return render(request, 'vault/suggestions.html', {'form': form})
+    return render(request, 'vault/suggestion_form.html', {'form': form})
+
+@login_required
+def add_tag(request):
+    video_id = request.POST.get('video_id')
+    tag_name = request.POST.get('tag_name')
+    video = get_object_or_404(Video, pk=video_id)
+    tag, _ = Tag.objects.get_or_create(name=tag_name)
+    video.tags.add(tag)
+    return redirect('vault:video_detail', yt_id=video.youtube_id)
+
+@login_required
+def add_rating(request):
+    video_id = request.POST.get('video_id')
+    score = int(request.POST.get('score'))
+    video = get_object_or_404(Video, pk=video_id)
+    rating, created = Rating.objects.update_or_create(user=request.user, video=video, defaults={'score': score})
+    return redirect('vault:video_detail', yt_id=video.youtube_id)

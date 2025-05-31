@@ -2,16 +2,17 @@ from django.urls import path
 from django.contrib.auth import views as auth_views
 from . import views
 
+
+app_name = 'vault'
 urlpatterns = [
     path('', views.HomePageView.as_view(), name='vault'),
-    path('nova/', views.home, name='vault_home'),
-    path('search/', views.home, name='search'),  # same as home, handles query param
-    path('video/<int:video_id>/', views.video_detail, name='video_detail'),
-    path('category/<slug:slug>/', views.category_videos, name='category_videos'),
-    path('suggestions/', views.suggestions, name='suggestions'),
-    path('favorites/', views.favorites, name='favorites'),
-    path('collections/', views.collections, name='collections'),
-    path('toggle_favorite/', views.toggle_favorite, name='toggle_favorite'),
-    path('login/', auth_views.LoginView.as_view(template_name='videos/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('', views.search_view, name='search'),                # Search page (home)
+    path('video/<str:yt_id>/', views.video_detail, name='video_detail'),
+    path('favorite/<int:video_id>/', views.toggle_favorite, name='toggle_favorite'),
+    path('collections/', views.collections_list, name='collections_list'),
+    path('collections/create/', views.create_collection, name='create_collection'),
+    path('collections/<int:collection_id>/', views.add_to_collection, name='add_to_collection'),
+    path('suggest/', views.suggestion_view, name='suggestion'),
+    path('tags/add/', views.add_tag, name='add_tag'),
+    path('rate/', views.add_rating, name='add_rating'),
 ]
