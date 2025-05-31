@@ -56,7 +56,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add this line
 ]
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 # URL config
 ROOT_URLCONF = 'saas.urls'
@@ -121,7 +125,7 @@ DATABASES = {
 }
 
 
-database_url = os.environ.get('DATABASE_URL')
+database_url = 'postgresql://nova_db_j9lt_user:ZaDNL0j8wqIMmyavKe8OS3jA55YXnH0D@dpg-d0sq272li9vc73d8t2m0-a.oregon-postgres.render.com/nova_db_j9lt'
 DATABASES['default'] = dj_database_url.parse(database_url)
 
 # Password validation (enable in production)
@@ -141,6 +145,7 @@ USE_TZ = True
 # Static files
 STATIC_URL = '/static/'
 
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 # OpenAI API Key (for future use)
 OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
