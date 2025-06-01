@@ -14,6 +14,7 @@ from django.db import models
 from django.core.paginator import Paginator
 from isodate import parse_duration as iso_to_duration  # For parsing ISO 8601 durations
 
+from datetime import timedelta
 
 from django.http import HttpResponse, FileResponse
 from django.db import models
