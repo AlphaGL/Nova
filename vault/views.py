@@ -18,6 +18,7 @@ from isodate import parse_duration as iso_to_duration  # For parsing ISO 8601 du
 from django.http import HttpResponse, FileResponse
 from django.db import models
 from isodate import parse_duration as iso_to_duration
+from .utils import iso_to_duration 
 from yt_dlp import YoutubeDL
 import os
 
@@ -73,13 +74,13 @@ def search_view(request):
 
                         # Parse ISO 8601 duration
                         duration_iso = detail['items'][0]['contentDetails']['duration']
-                        duration_td = iso_to_duration(duration_iso)
-                        video.duration = duration_td.total_seconds()
+                        duration_td = iso_to_duration(duration_iso)  # Must return timedelta
+                        video.duration = duration_td
 
                     video.save()
 
                 # Classify as short or regular
-                if video.duration and video.duration.total_seconds() < 60:
+                if video.duration and video.duration < timedelta(seconds=60):
                     shorts.append(video)
                 else:
                     regulars.append(video)
@@ -95,7 +96,7 @@ def search_view(request):
         # Combine for pagination, or keep separate if needed
         all_videos = shorts + regulars
 
-        # Paginate all_videos (can be just regulars if you want)
+        # Paginate all_videos
         paginator = Paginator(all_videos, 50)
         page_number = request.GET.get('page')
         page_obj = paginator.get_page(page_number)
