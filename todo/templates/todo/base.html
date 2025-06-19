@@ -1,66 +1,191 @@
-<!DOCTYPE html>
 {% load static %}
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Nova{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-        };
-    </script>
-    <style>
-        .toggle-switch {
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-    </style>
-</head>
-  {% include 'core/nav.html' %}
-<body class="bg-white text-gray-800 dark:bg-gray-900 dark:text-white transition-colors duration-300 min-h-screen flex flex-col">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Planner{% endblock %}</title>
 
-    <!-- Navbar -->
-    
-    <div class="toggle-switch" onclick="toggleTheme()">
-        <span id="modeLabel" class="text-xl">🌞</span>
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- FullCalendar & Axios -->
+  <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+  <!-- Base Styles -->
+  <link href="{% static 'css/utilities.css' %}" rel="stylesheet">
+  <link href="{% static 'css/styles.css' %}" rel="stylesheet">
+
+  <style>
+    /* Material-inspired color palette */
+    :root {
+      --blue: #1a73e8;
+      --surface: #fff;
+      --on-surface: #202124;
+      --gray: #5f6368;
+      --bg: #f1f3f4;
+      --shadow: rgba(60, 64, 67, 0.1);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Roboto', sans-serif;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      color: var(--on-surface);
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* App bar */
+    top_nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: var(--surface);
+      box-shadow: 0 2px 4px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1.3rem;
+      color: var(--blue);
+    }
+    .material-symbols-outlined { font-size: 1.5rem; }
+
+    .top_nav-links {
+      display: none;
+      gap: 2rem;
+    }
+    .top_nav-links a:hover { color: var(--blue); }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .menu-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+    }
+    .menu-btn .material-symbols-outlined { font-size: 2rem; }
+
+    .mobile-menu {
+      display: none;
+      flex-direction: column;
+      background: var(--surface);
+      box-shadow: 0 4px 8px var(--shadow);
+    }
+    .mobile-menu a {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #e0e0e0;
+    }
+    .mobile-menu a:hover {
+      background: var(--bg);
+    }
+
+    main {
+      flex: 1;
+      width: 100%;
+      max-width: 960px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .alert {
+      background: #e8f0fe;
+      color: #1967d2;
+      border-left: 4px solid #1967d2;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      border-radius: 4px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      background: var(--surface);
+      color: var(--gray);
+      box-shadow: 0 -1px 4px var(--shadow);
+      font-size: 0.85rem;
+    }
+
+    @media(min-width: 768px) {
+      .top_nav-links { display: flex; }
+      .menu-btn, .mobile-menu { display: none; }
+    }
+  </style>
+
+  {% block head_extra %}{% endblock %}
+</head>
+
+<body>
+  <top_nav>
+    <a href="{% url 'todo:dashboard' %}" class="brand">
+      <span class="material-symbols-outlined">event_note</span> Planner
+    </a>
+
+    <div class="top_nav-links">
+      <a href="{% url 'todo:task_list' %}">Tasks</a>
+      <a href="{% url 'todo:calendar_view' %}">Calendar</a>
+      <a href="{% url 'todo:pomodoro_timer' %}">Pomodoro</a>
+      <a href="{% url 'todo:habit_list' %}">Habits</a>
     </div>
 
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 py-6">
-        {% block content %}
-        {% endblock %}
-    </main>
-    <!-- Persistent Dark Mode Toggle Script -->
-    <script>
-        const modeLabel = document.getElementById('modeLabel');
+    <div class="user-info">
+      {% if user.is_authenticated %}
+        <span>Hi, {{ user.get_short_name|default:user.username }}</span>
+        <a href="{% url 'logout' %}" style="color: #ea4335;">Logout</a>
+      {% else %}
+        <a href="{% url 'login' %}" style="color: var(--blue);">Login</a>
+      {% endif %}
+    </div>
 
-        function setTheme(mode) {
-            const html = document.documentElement;
-            if (mode === 'dark') {
-                html.classList.add('dark');
-                modeLabel.textContent = '🌙';
-            } else {
-                html.classList.remove('dark');
-                modeLabel.textContent = '🌞';
-            }
-        }
+    <button class="menu-btn" id="menu-toggle">
+      <span class="material-symbols-outlined">menu</span>
+    </button>
+  </top_nav>
 
-        function toggleTheme() {
-            const currentMode = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-            const newMode = currentMode === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('theme', newMode);
-            setTheme(newMode);
-        }
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="{% url 'todo:task_list' %}">Tasks</a>
+    <a href="{% url 'todo:calendar_view' %}">Calendar</a>
+    <a href="{% url 'todo:pomodoro_timer' %}">Pomodoro</a>
+    <a href="{% url 'todo:habit_list' %}">Habits</a>
+    {% if user.is_authenticated %}
+      <a href="#">{{ user.get_short_name|default:user.username }}</a>
+      <a href="{% url 'logout' %}" style="color: #ea4335;">Logout</a>
+    {% else %}
+      <a href="{% url 'login' %}" style="color: var(--blue);">Login</a>
+    {% endif %}
+  </div>
 
-        // Load saved theme
-        document.addEventListener('DOMContentLoaded', () => {
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            setTheme(savedTheme);
-        });
-    </script>
+  <main>
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+    {% include 'core/nav.html' %}
+
+  {% block scripts %}{% endblock %}
+  <script>
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+      const mob = document.getElementById('mobile-menu');
+      mob.style.display = mob.style.display === 'flex' ? 'none' : 'flex';
+    });
+  </script>
 </body>
 </html>

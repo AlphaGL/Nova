@@ -1,0 +1,180 @@
+{% extends "todo/base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<style>
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f9f9f9;
+    color: #202124;
+  }
+
+  .material-card {
+    background-color: #fff;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(60,64,67,.15), 0 4px 8px rgba(60,64,67,.1);
+    transition: all 0.3s ease;
+    overflow-x: auto;
+  }
+
+  .material-card:hover {
+    box-shadow: 0 4px 12px rgba(60,64,67,.2);
+    transform: translateY(-2px);
+  }
+
+  h1, h2 {
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .dashboard-section {
+    margin-bottom: 2rem;
+  }
+
+  .task-link {
+    color: #1a73e8;
+    text-decoration: none;
+    font-weight: 500;
+    word-break: break-word;
+  }
+
+  .task-link:hover {
+    text-decoration: underline;
+  }
+
+  .priority-high { color: #d93025; font-weight: 600; }
+  .priority-medium { color: #1a73e8; font-weight: 600; }
+  .priority-low { color: #5f6368; }
+
+  .stat-chip {
+    display: inline-block;
+    background-color: #e8f0fe;
+    color: #1967d2;
+    font-size: 0.85rem;
+    padding: 4px 10px;
+    border-radius: 50px;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .list-group li {
+    padding: 0.4rem 0;
+    border-bottom: 1px solid #f1f1f1;
+    word-break: break-word;
+  }
+
+  .habit-log {
+    color: #1a73e8;
+    text-decoration: none;
+  }
+
+  .habit-log:hover {
+    text-decoration: underline;
+  }
+
+  .habit-done {
+    color: #188038;
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    .material-card {
+      padding: 16px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+    }
+  }
+</style>
+
+<div class="container py-4">
+  <h1 class="mb-4 text-center text-primary">Dashboard</h1>
+
+  <div class="row g-4">
+    <!-- Today's Tasks -->
+    <div class="col-md-6">
+      <div class="material-card dashboard-section">
+        <h2 class="h5 mb-3">Today's Tasks <span class="stat-chip">{{ todays_tasks.count }}</span></h2>
+        <ul class="list-unstyled">
+          {% for task in todays_tasks %}
+            <li>
+              <a href="{% url 'todo:task_detail' task.id %}" class="task-link">{{ task.title }}</a>
+              {% if task.priority == 2 %}
+                <span class="priority-high">(High)</span>
+              {% elif task.priority == 1 %}
+                <span class="priority-medium">(Medium)</span>
+              {% else %}
+                <span class="priority-low">(Low)</span>
+              {% endif %}
+            </li>
+          {% empty %}
+            <li class="text-muted">No tasks for today.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+
+    <!-- Upcoming Tasks -->
+    <div class="col-md-6">
+      <div class="material-card dashboard-section">
+        <h2 class="h5 mb-3">Upcoming (7 days)</h2>
+        <ul class="list-unstyled">
+          {% for task in upcoming_tasks %}
+            <li>
+              <span class="text-muted">{{ task.due_date }}:</span>
+              <a href="{% url 'todo:task_detail' task.id %}" class="task-link">{{ task.title }}</a>
+            </li>
+          {% empty %}
+            <li class="text-muted">No upcoming tasks.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Stats -->
+  <div class="material-card dashboard-section">
+    <h2 class="h6">This Week’s Stats</h2>
+    <p>✅ Tasks completed in last 7 days: <span class="stat-chip">{{ weekly_completed }}</span></p>
+  </div>
+
+  <!-- Habits -->
+  <div class="material-card">
+    <h2 class="h6 mb-3">Habits</h2>
+    {% if habit_status %}
+      <ul class="list-group list-group-flush">
+        {% for habit, done in habit_status %}
+          <li class="d-flex justify-content-between flex-wrap">
+            <span>{{ habit.name }} ({{ habit.get_frequency_display }})</span>
+            {% if done %}
+              <span class="habit-done">✓ Done today</span>
+            {% else %}
+              <a href="{% url 'todo:habit_list' %}" class="habit-log">Log now</a>
+            {% endif %}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No habits yet. <a href="{% url 'todo:habit_create' %}" class="habit-log">Add a habit</a>.</p>
+    {% endif %}
+  </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+{% endblock %}

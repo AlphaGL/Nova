@@ -1,0 +1,176 @@
+{% extends "todo/base.html" %}
+{% block title %}Add Note{% endblock %}
+
+{% block head_extra %}
+<style>
+  :root {
+    --primary: #1a73e8;
+    --text: #202124;
+    --muted: #5f6368;
+    --surface: #ffffff;
+    --background: #f1f3f4;
+    --radius: 12px;
+    --shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    --transition: 0.2s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background);
+    color: var(--text);
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: var(--primary);
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  form {
+    background-color: var(--surface);
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  label {
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+    display: block;
+    color: var(--muted);
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: var(--radius);
+    transition: border 0.2s ease;
+    background-color: #fff;
+  }
+
+  input[type="text"]:focus,
+  textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+  }
+
+  textarea {
+    resize: vertical;
+    min-height: 120px;
+  }
+
+  .errorlist {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+  }
+
+  .form-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: flex-start;
+    align-items: center;
+  }
+
+  .btn {
+    padding: 0.7rem 1.4rem;
+    font-size: 1rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color var(--transition);
+  }
+
+  .btn-submit {
+    background-color: var(--primary);
+    color: white;
+  }
+
+  .btn-submit:hover {
+    background-color: #1669d3;
+  }
+
+  .btn-cancel {
+    background-color: transparent;
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 500;
+    padding: 0.7rem 1rem;
+  }
+
+  .btn-cancel:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 480px) {
+    .container {
+      padding: 1rem 1rem;
+    }
+
+    form {
+      padding: 1.5rem;
+    }
+
+    .form-buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .btn,
+    .btn-cancel {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Add Note</h1>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.title.label_tag }}
+      {{ form.title }}
+      {{ form.title.errors }}
+    </div>
+
+    <div>
+      {{ form.content.label_tag }}
+      {{ form.content }}
+      {{ form.content.errors }}
+    </div>
+
+    <div class="form-buttons">
+      <button type="submit" class="btn btn-submit">Save Note</button>
+      <a href="{% url 'todo:task_detail' task.id %}" class="btn-cancel">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

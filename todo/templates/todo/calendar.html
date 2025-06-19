@@ -1,0 +1,202 @@
+{% extends "todo/base.html" %}
+{% block title %}Calendar{% endblock %}
+
+{% block head_extra %}
+<!-- FullCalendar CSS -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet" />
+
+<!-- Google Fonts & Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Material+Symbols+Outlined&display=swap" rel="stylesheet" />
+
+<style>
+  :root {
+    --primary: #1a73e8;
+    --on-primary: #ffffff;
+    --surface: #ffffff;
+    --on-surface: #202124;
+    --muted: #5f6368;
+    --hover: #e8f0fe;
+    --bg: #f1f3f4;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--bg);
+    overflow-x: hidden;
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    animation: fadeSlideIn 0.5s ease-out;
+  }
+
+  @keyframes fadeSlideIn {
+    0% {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #calendar {
+    background: var(--surface);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease-in-out;
+    overflow-x: auto;
+    width: 100%;
+  }
+
+  /* Prevent FullCalendar overflow */
+  .fc {
+    width: 100% !important;
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .fc-scrollgrid {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  .fc-toolbar-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--on-surface);
+  }
+
+  .fc-button {
+    background-color: var(--bg) !important;
+    color: var(--on-surface) !important;
+    border: none !important;
+    font-weight: 500;
+    text-transform: capitalize;
+    border-radius: 6px !important;
+    transition: background-color 0.2s;
+  }
+
+  .fc-button:hover,
+  .fc-button.fc-button-active {
+    background-color: var(--hover) !important;
+    color: var(--primary) !important;
+  }
+
+  .fc-daygrid-event {
+    background-color: var(--primary) !important;
+    color: var(--on-primary) !important;
+    border: none;
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s;
+  }
+
+  .fc-daygrid-event:hover {
+    background-color: #1558b0 !important;
+  }
+
+  .fc-daygrid-day-number {
+    font-weight: 500;
+    color: var(--muted);
+  }
+
+  .fc .fc-toolbar.fc-header-toolbar {
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 768px) {
+    #calendar {
+      padding: 1rem;
+    }
+
+    .fc-toolbar-title {
+      font-size: 1.25rem;
+    }
+
+    .fc-button {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.6rem !important;
+    }
+
+    .fc .fc-toolbar.fc-header-toolbar {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1 class="page-title">
+  <span class="material-symbols-outlined">calendar_today</span>
+  Task Calendar
+</h1>
+<div id="calendar"></div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Axios -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- FullCalendar -->
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+      initialView: 'dayGridMonth',
+      height: 'auto',
+      editable: true,
+      eventColor: '#1a73e8',
+      headerToolbar: {
+        left: 'prev,next today',
+        center: 'title',
+        right: 'dayGridMonth,timeGridWeek,timeGridDay'
+      },
+      events: {
+        url: "{% url 'todo:calendar_data' %}",
+        method: 'GET',
+        failure: function () {
+          alert('⚠️ Failed to load events. Please try again.');
+        }
+      },
+      eventDrop: function (info) {
+        const csrftoken = '{{ csrf_token }}';
+        axios.post("{% url 'todo:update_task_date' %}", {
+          id: info.event.id,
+          start: info.event.start.toISOString().split('T')[0]
+        }, {
+          headers: { 'X-CSRFToken': csrftoken }
+        }).then(() => {
+          console.log("✅ Event date updated");
+        }).catch(() => {
+          alert("❌ Failed to update event date.");
+        });
+      },
+      eventClick: function (info) {
+        window.location.href = `/tasks/${info.event.id}/`;
+      }
+    });
+
+    calendar.render();
+  });
+</script>
+{% endblock %}

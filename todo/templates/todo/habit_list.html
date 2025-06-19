@@ -1,0 +1,204 @@
+{% extends "todo/base.html" %}
+{% block title %}Habits{% endblock %}
+
+{% block head_extra %}
+<style>
+  :root {
+    --primary: #1a73e8;
+    --surface: #fff;
+    --background: #f8f9fa;
+    --text: #202124;
+    --muted: #5f6368;
+    --success: #34a853;
+    --danger: #ea4335;
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --transition: 0.3s ease;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  body {
+    font-family: 'Roboto', sans-serif;
+    background: var(--background);
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 1rem;
+    margin: 0 auto;
+    overflow-x: hidden;
+  }
+
+  h1 {
+    text-align: center;
+    color: var(--primary);
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+  }
+
+  .card h2 {
+    margin-top: 0;
+    font-size: 1.2rem;
+    color: var(--text);
+  }
+
+  .btn {
+    background: var(--primary);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s ease;
+    display: inline-block;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background: #1558c0;
+  }
+
+  .btn-danger {
+    background: none;
+    color: var(--danger);
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    padding: 0.3rem 0;
+  }
+
+  .btn-danger:hover {
+    text-decoration: underline;
+  }
+
+  select,
+  input[type="date"],
+  input[type="checkbox"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 1rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.25rem;
+    font-weight: 500;
+  }
+
+  .habit-form-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .habit-form-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .habit-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .habit-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 0;
+    border-bottom: 1px dashed #e0e0e0;
+    flex-wrap: wrap;
+    word-break: break-word;
+  }
+
+  .habit-list li span {
+    max-width: 80%;
+    font-weight: 500;
+    color: var(--text);
+  }
+
+  .habit-list form {
+    margin-top: 0.5rem;
+  }
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>Habit Tracker</h1>
+
+  <div class="card">
+    <h2>Add New Habit</h2>
+    <a href="{% url 'todo:habit_create' %}" class="btn">+ New Habit</a>
+  </div>
+
+  <div class="card">
+    <h2>Log Habit Completion</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="habit-form-grid">
+        <div>
+          <label for="habit_id">Habit:</label>
+          <select name="habit_id" id="habit_id">
+            <option value="">-- Select Habit --</option>
+            {% for habit in habits %}
+              <option value="{{ habit.id }}">{{ habit.name }} ({{ habit.get_frequency_display }})</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label for="date">Date:</label>
+          {{ log_form.date }}
+        </div>
+        <div>
+          <label for="{{ log_form.completed.id_for_label }}">Completed?</label>
+          {{ log_form.completed }}
+        </div>
+      </div>
+      <div style="margin-top: 1rem;">
+        <button type="submit" class="btn" style="background: var(--success);">Save Log</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Your Habits</h2>
+    {% if habits %}
+      <ul class="habit-list">
+        {% for habit in habits %}
+          <li>
+            <span>{{ habit.name }} ({{ habit.get_frequency_display }})</span>
+            <form method="post" action="{% url 'todo:habit_delete' habit.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn-danger" onclick="return confirm('Delete this habit?');">Delete</button>
+            </form>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No habits yet. Start by adding one above.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

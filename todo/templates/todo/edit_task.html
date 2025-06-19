@@ -1,123 +1,176 @@
-{% extends 'todo/base.html' %}
+{% extends "todo/base.html" %}
+{% block title %}Edit Task{% endblock %}
 
-{% block content %}
+{% block head_extra %}
 <style>
-    .input-field {
-  width: 100%;
-  padding: 12px 14px;
-  margin-top: 5px;
-  border: 2px solid #cbd5e1;
-  border-radius: 10px;
-  font-size: 1rem;
-  background-color: #f9fafb;
-  color: #1e293b;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.input-field:focus {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
-  outline: none;
-  background-color: #ffffff;
-}
-
-.checkbox-field {
-  width: 20px;
-  height: 20px;
-  accent-color: #3b82f6;
-  cursor: pointer;
-}
-
-textarea.input-field {
-  resize: vertical;
-}
-
-  .edit-task-container {
-    max-width: 500px;
-    margin: 60px auto;
-    padding: 30px 25px;
-    background-color: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    color: #1e3a5f;
+  :root {
+    --primary: #1a73e8;
+    --accent: #e8f0fe;
+    --text: #202124;
+    --muted: #5f6368;
+    --bg: #f5f5f5;
+    --radius: 12px;
+    --shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
   }
 
-  .edit-task-container h2 {
-    text-align: center;
-    margin-bottom: 25px;
-    font-size: 1.8rem;
-    color: #1e3a8a;
+  html, body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg);
+    font-family: 'Roboto', sans-serif;
+    overflow-x: hidden; /* FIX horizontal overflow */
   }
 
-  .edit-task-container form {
+  .container {
     display: flex;
-    flex-direction: column;
-    gap: 15px;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
   }
 
-  .edit-task-container form label {
-    font-weight: 600;
-    margin-bottom: 5px;
-    color: #334155;
+  .form-card {
+    background: #fff;
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    max-width: 720px;
+    width: 100%;
+    margin-right:1.5rem;
+    box-sizing: border-box;
   }
 
-  .edit-task-container form input[type="text"],
-  .edit-task-container form input[type="date"],
-  .edit-task-container form select,
-  .edit-task-container form textarea {
-    padding: 10px 14px;
-    border: 1.8px solid #cbd5e1;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border 0.3s ease;
-  }
-
-  .edit-task-container form input:focus,
-  .edit-task-container form select:focus,
-  .edit-task-container form textarea:focus {
-    border-color: #3b82f6;
-    outline: none;
-  }
-
-  .edit-task-container button[type="submit"] {
-    background-color: #3b82f6;
-    color: white;
-    font-weight: 600;
-    padding: 12px;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  .edit-task-container button[type="submit"]:hover {
-    background-color: #2563eb;
-  }
-
-  .edit-task-container a {
+  h1 {
     text-align: center;
-    margin-top: 15px;
-    display: block;
-    color: #3b82f6;
-    text-decoration: none;
-    font-weight: 500;
+    color: var(--primary);
+    font-size: 1.8rem;
+    margin-bottom: 1.5rem;
   }
 
-  .edit-task-container a:hover {
+  label {
+    font-weight: 600;
+    color: var(--text);
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+
+  input[type="text"],
+  input[type="date"],
+  select,
+  textarea {
+    width: 100%;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    background-color: white;
+    box-sizing: border-box;
+    transition: border 0.3s;
+  }
+
+  input:focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--primary);
+    outline: none;
+    background-color: var(--accent);
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .grid-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .btn-primary {
+    background-color: var(--primary);
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #1558b0;
+  }
+
+  .btn-cancel {
+    margin-left: 1rem;
+    color: var(--muted);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .btn-cancel:hover {
     text-decoration: underline;
   }
 </style>
+{% endblock %}
 
-<div class="edit-task-container">
-  <h2>Edit Planner: {{ task.title }}</h2>
-
-  <form method="POST">
+{% block content %}
+<div class="container">
+  <form method="post" class="form-card">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save Changes</button>
-    <a href="{% url 'task_list' %}">Cancel</a>
+    <h1>Edit Task</h1>
+    {{ form.non_field_errors }}
+
+    <div>
+      {{ form.title.label_tag }}
+      {{ form.title }}
+      {{ form.title.errors }}
+    </div>
+
+    <div>
+      {{ form.description.label_tag }}
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+
+    <div class="grid-3">
+      <div>
+        {{ form.due_date.label_tag }}
+        {{ form.due_date }}
+        {{ form.due_date.errors }}
+      </div>
+      <div>
+        {{ form.priority.label_tag }}
+        {{ form.priority }}
+        {{ form.priority.errors }}
+      </div>
+      <div>
+        {{ form.recurrence.label_tag }}
+        {{ form.recurrence }}
+        {{ form.recurrence.errors }}
+      </div>
+    </div>
+
+    <div class="checkbox">
+      {{ form.completed }} {{ form.completed.label_tag }}
+    </div>
+
+    <div class="mt-4">
+      <button type="submit" class="btn-primary">Save Changes</button>
+      <a href="{% url 'todo:task_list' %}" class="btn-cancel">Cancel</a>
+    </div>
   </form>
 </div>
 {% endblock %}

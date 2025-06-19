@@ -1,0 +1,197 @@
+{% extends "todo/base.html" %}
+{% block title %}Task Detail{% endblock %}
+
+{% block head_extra %}
+<style>
+  :root {
+    --primary: #1a73e8;
+    --secondary: #f1f3f4;
+    --surface: #ffffff;
+    --on-surface: #202124;
+    --muted: #5f6368;
+    --danger: #ea4335;
+    --success: #34a853;
+    --warning: #fbbc04;
+    --radius: 12px;
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+    background-color: #f8f9fa;
+    overflow-x: hidden;
+  }
+
+  .container {
+    max-width: 960px;
+    margin: 2rem auto;
+    padding: 1rem;
+  }
+
+  h1 {
+    font-size: clamp(1.5rem, 4vw, 2rem);
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 1rem;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+  }
+
+  .card p {
+    margin: 0.5rem 0;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--on-surface);
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+
+  .card strong {
+    color: #111;
+  }
+
+  .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    color: #fff;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    transition: background 0.25s ease-in-out;
+    min-width: 120px;
+  }
+
+  .btn-edit { background-color: var(--warning); }
+  .btn-complete { background-color: var(--success); }
+  .btn-back { background-color: var(--muted); }
+
+  .btn:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+  }
+
+  .notes {
+    background: var(--surface);
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    overflow-x: auto;
+  }
+
+  .notes h2 {
+    font-size: 1.25rem;
+    color: var(--primary);
+    margin-bottom: 1rem;
+  }
+
+  .notes ul {
+    list-style: disc inside;
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  .notes li {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: var(--on-surface);
+    word-break: break-word;
+  }
+
+  .notes a {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--primary);
+    font-weight: 500;
+    text-decoration: none;
+  }
+
+  .notes a:hover {
+    text-decoration: underline;
+  }
+
+  @media (max-width: 640px) {
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .btn {
+      width: 100%;
+    }
+
+    .card, .notes {
+      padding: 1rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h1>{{ task.title }}</h1>
+
+  <div class="card">
+    <p><strong>Description:</strong> {{ task.description|default:"No description." }}</p>
+    <p><strong>Due Date:</strong> {{ task.due_date }}</p>
+    <p><strong>Priority:</strong> {{ task.get_priority_display }}</p>
+    <p><strong>Recurrence:</strong> {{ task.get_recurrence_display }}</p>
+    <p><strong>Completed:</strong> {{ task.completed|yesno:"Yes,No" }}</p>
+    <p><strong>Created At:</strong> {{ task.created_at }}</p>
+    {% if task.completed_at %}
+      <p><strong>Completed At:</strong> {{ task.completed_at }}</p>
+    {% endif %}
+
+    <div class="action-buttons">
+      <a href="{% url 'todo:edit_task' task.id %}" class="btn btn-edit">Edit</a>
+      <a href="{% url 'todo:toggle_complete' task.id %}" class="btn btn-complete">
+        {% if task.completed %}Mark Incomplete{% else %}Mark Complete{% endif %}
+      </a>
+      <a href="{% url 'todo:task_list' %}" class="btn btn-back">Back to List</a>
+    </div>
+  </div>
+
+  <div class="notes">
+    <h2>Notes</h2>
+    {% if notes %}
+      <ul>
+        {% for note in notes %}
+          <li>
+            <strong>{{ note.title }}</strong> ({{ note.created_at|date:"Y-m-d H:i" }}):<br>
+            {{ note.content }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p>No notes yet.</p>
+    {% endif %}
+    <a href="{% url 'todo:note_add' task.id %}">+ Add Note</a>
+  </div>
+</div>
+{% endblock %}

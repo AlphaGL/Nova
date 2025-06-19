@@ -251,35 +251,48 @@
 
 
 {% if user.is_authenticated %}
-    <div class="card-container">
-    <a href="#" id="vault-search" class="card">
-      <h2>📺 Vault</h2>
-      <p>Curated smart search for the best learning resources and videos.</p>
-    </a>
+<div class="card-container">
+  <!-- Vault card -->
+  <a href="#" id="vault-search" class="card">
+    <h2>📺 Vault</h2>
+    <p>Curated smart search for the best learning resources and videos.</p>
+  </a>
 
-    <script>
-      const link = document.getElementById('vault-search');
-      // Construct the URL dynamically using current origin (protocol + domain + port)
-      link.href = window.location.origin + '/vault/nova/';
-    </script>
+  <!-- Planner card (Django URL reversed directly) -->
+  <a href="{% url 'todo:dashboard' %}" class="card">
+    <h2>📅 Planner</h2>
+    <p>Organize your goals, tasks, and study sessions with ease.</p>
+  </a>
 
-    <a href="{% url 'task_list' %}" class="card">
-      <h2>📅 Planner</h2>
-      <p>Organize your goals, tasks, and study sessions with ease.</p>
-    </a>
-
+  <!-- CGPA card -->
   <a href="#" id="cgpa-link" class="card">
     <h2>📈 CGPA Calculator</h2>
     <p>Monitor your academic or personal learning journey over time.</p>
   </a>
+</div>
 
-  <script>
-    const link = document.getElementById('cgpa-link');
-    // Construct the URL dynamically using current origin (protocol + domain + port)
-    link.href = window.location.origin + '/study_tracker/semester/1/';
-  </script>
+{% block scripts %}
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Vault link
+    const vaultLink = document.getElementById('vault-search');
+    if (vaultLink) {
+      // If you have a fixed URL path, you can also embed it via Django:
+      // Or construct dynamically:
+      vaultLink.href = window.location.origin + '/vault/';
+    }
 
-  </div>
+    // CGPA link
+    const cgpaLink = document.getElementById('cgpa-link');
+    if (cgpaLink) {
+      // If you have a named URL, use Django reverse:
+      // Otherwise construct dynamically:
+      cgpaLink.href = window.location.origin + '/study_tracker/semester/1/';
+    }
+  });
+</script>
+{% endblock %}
+
 {% else %}
   <div class="card-container">
 
@@ -308,7 +321,7 @@
 
 
   <footer>
-    &copy; Nova
+     &copy; Nova ✨
   </footer>
 
   <script>
