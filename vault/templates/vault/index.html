@@ -5,217 +5,196 @@
   <title>Vault Smart Search</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
-  <style>
-    :root {
-      --primary-blue: #0052cc;
-      --accent-blue: #007bff;
-      --bg-white: #ffffff;
-      --bg-dark: #121212;
-      --text-dark: #222;
-      --text-light: #f5f5f5;
-      --input-bg-light: #f0f4ff;
-      --input-bg-dark: #1e1e1e;
-      --input-border-light: #a6c8ff;
-      --input-border-dark: #444;
-      --card-bg-light: #f9fbff;
-      --card-bg-dark: #1e1e1e;
-      --card-shadow: rgba(0, 82, 204, 0.15);
-    }
+<style>
+  :root {
+  --primary-blue: #4f46e5;
+  --accent-blue: #6366f1;
+  --bg-white: #f3f4f6;
+  --bg-dark: #0f172a;
+  --text-dark: #1e293b;
+  --text-light: #f1f5f9;
+  --input-bg-light: rgba(255, 255, 255, 0.7);
+  --input-bg-dark: rgba(30, 41, 59, 0.6);
+  --input-border: rgba(100, 116, 139, 0.3);
+  --card-bg: rgba(255, 255, 255, 0.1);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
+}
 
-    body {
-      margin: 0;
-      font-family: 'Roboto', sans-serif;
-      background-color: var(--bg-white);
-      color: var(--text-dark);
-      transition: all 0.3s ease;
-      min-height: 100vh;
-      padding: 40px 20px 80px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+body {
+  font-family: 'Roboto', sans-serif;
+  margin: 0;
+  min-height: 100vh;
+  padding: 60px 20px;
+  background: linear-gradient(135deg, #e0e7ff, #c7d2fe);
+  color: var(--text-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s ease;
+}
 
-    body.dark-mode {
-      background-color: var(--bg-dark);
-      color: var(--text-light);
-    }
+body.dark-mode {
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: var(--text-light);
+}
 
-    h1 {
-      font-size: 2.5rem;
-      color: var(--primary-blue);
-      font-weight: 700;
-      margin-bottom: 10px;
-    }
+h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--primary-blue);
+  margin-bottom: 8px;
+}
 
-    .description {
-      text-align: center;
-      max-width: 600px;
-      font-size: 1.1rem;
-      margin-bottom: 25px;
-      color: inherit;
-    }
+.description {
+  max-width: 600px;
+  font-size: 1.1rem;
+  text-align: center;
+  color: inherit;
+  margin-bottom: 30px;
+}
 
-    .controls {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 25px;
-    }
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
 
-    .controls > * {
-      font-size: 1rem;
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-    }
+.theme-toggle, .search-bar button {
+  background: var(--accent-blue);
+  color: #fff;
+  font-weight: 600;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+  transition: 0.3s ease;
+}
 
-    .theme-toggle {
-      background: var(--accent-blue);
-      color: white;
-    }
+.theme-toggle:hover,
+.search-bar button:hover {
+  background-color: #7c3aed;
+}
 
-    .bg-picker {
-      padding: 6px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      cursor: pointer;
-      width: 40px;
-      height: 40px;
-      vertical-align: middle;
-    }
+.bg-picker {
+  padding: 6px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+}
 
-    .search-bar {
-      display: flex;
-      max-width: 600px;
-      width: 100%;
-      gap: 10px;
-      margin-bottom: 30px;
-    }
+.search-bar {
+  display: flex;
+  width: 100%;
+  max-width: 700px;
+  gap: 12px;
+  margin-bottom: 30px;
+}
 
-    .search-bar input {
-      flex: 1;
-      padding: 14px;
-      border: 2px solid var(--input-border-light);
-      background: var(--input-bg-light);
-      border-radius: 10px;
-      font-size: 1rem;
-      transition: all 0.3s;
-    }
+.search-bar input {
+  flex: 1;
+  padding: 14px 16px;
+  font-size: 1rem;
+  border-radius: 12px;
+  background: var(--input-bg-light);
+  border: 2px solid var(--input-border);
+  backdrop-filter: blur(10px);
+  transition: 0.3s ease;
+}
 
-    body.dark-mode .search-bar input {
-      background: var(--input-bg-dark);
-      border-color: var(--input-border-dark);
-      color: white;
-    }
+body.dark-mode .search-bar input {
+  background: var(--input-bg-dark);
+  color: var(--text-light);
+  border-color: var(--input-border);
+}
 
-    .search-bar button {
-      background-color: var(--primary-blue);
-      color: white;
-      padding: 14px 25px;
-      font-size: 1rem;
-      font-weight: 600;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+#results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+  width: 100%;
+  max-width: 1200px;
+}
 
-    .search-bar button:hover {
-      background-color: var(--accent-blue);
-    }
+.video-card {
+  background: var(--card-bg);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 30px var(--glass-shadow);
+  transition: transform 0.3s, box-shadow 0.3s;
+  cursor: pointer;
+}
 
-    #results {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
-      max-width: 1000px;
-      width: 100%;
-    }
+.video-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+}
 
-    .video-card {
-      background: var(--card-bg-light);
-      border-radius: 12px;
-      box-shadow: 0 8px 16px var(--card-shadow);
-      overflow: hidden;
-      transition: all 0.3s;
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-    }
+.video-card img {
+  width: 100%;
+  display: block;
+}
 
-    .video-card:hover {
-      transform: translateY(-6px) scale(1.02);
-      box-shadow: 0 12px 24px rgba(0, 0, 0, 0.2);
-    }
+.content {
+  padding: 16px;
+}
 
-    body.dark-mode .video-card {
-      background: var(--card-bg-dark);
-    }
+.title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--primary-blue);
+}
 
-    .video-card img {
-      width: 100%;
-      height: auto;
-    }
+.meta {
+  font-size: 0.85rem;
+  margin-top: 5px;
+  color: #94a3b8;
+}
 
-    .content {
-      padding: 14px;
-    }
+body.dark-mode .meta {
+  color: #cbd5e1;
+}
 
-    .title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--primary-blue);
-    }
+#player-container {
+  margin-top: 40px;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: 0 10px 30px var(--glass-shadow);
+  max-width: 1000px;
+  width: 100%;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
 
-    .meta {
-      font-size: 0.85rem;
-      color: #777;
-      margin-top: 4px;
-    }
+#player-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: var(--primary-blue);
+  text-align: center;
+  margin: 16px 0;
+}
 
-    body.dark-mode .meta {
-      color: #ccc;
-    }
+#player-container iframe {
+  width: 100%;
+  height: 500px;
+  border: none;
+  border-radius: 12px;
+}
 
-    #player-container {
-      max-width: 900px;
-      width: 100%;
-      background: var(--card-bg-light);
-      border-radius: 15px;
-      padding: 10px;
-      box-shadow: 0 10px 25px var(--card-shadow);
-      margin-top: 30px;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-    }
+@media (max-width: 768px) {
+  #player-container iframe {
+    height: 300px;
+  }
+}
 
-    body.dark-mode #player-container {
-      background: var(--card-bg-dark);
-    }
-
-    #player-container iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
-      border-radius: 12px;
-    }
-
-    #player-title {
-      margin: 15px 0;
-      font-size: 1.25rem;
-      font-weight: bold;
-      color: var(--primary-blue);
-      text-align: center;
-    }
-
-    @media (max-width: 640px) {
-      #player-container iframe {
-        height: 280px;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
   {% include 'core/nav.html' %}

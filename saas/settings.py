@@ -15,8 +15,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates/')
 
 # Secret key & debug
-SECRET_KEY = os.environ.get('SECRET_KEY')  # fallback for dev only
-DEBUG = os.environ.get('DEBUG', 'False') == 'True'
+SECRET_KEY = 'ssffgsgsfdjgefwegfgewgfedgyjywefdgyfweghwfdgfebffdwetufdtetwyFUFEBdvsgyUfut365r68273'
+# SECRET_KEY = os.environ.get('SECRET_KEY')  # fallback for dev only
+DEBUG = False
+# DEBUG = os.environ.get('DEBUG', 'False') == 'True'
 
 ALLOWED_HOSTS = ['*']
 
@@ -118,15 +120,13 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    # '': dj_database_url.parse(
+    #     ''
+    # ),
+    'default': dj_database_url.parse(
+        'postgresql://neondb_owner:npg_fXgIWd5l1AEZ@ep-red-star-a88r5e0b-pooler.eastus2.azure.neon.tech/neondb?sslmode=require'
+    )
 }
-
-
-database_url = 'postgresql://nova_db_j9lt_user:ZaDNL0j8wqIMmyavKe8OS3jA55YXnH0D@dpg-d0sq272li9vc73d8t2m0-a.oregon-postgres.render.com/nova_db_j9lt'
-DATABASES['default'] = dj_database_url.parse(database_url)
 
 # Password validation (enable in production)
 AUTH_PASSWORD_VALIDATORS = [
